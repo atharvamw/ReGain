@@ -95,7 +95,7 @@ By reusing and redistributing leftover materials:
 
 |      Name       |           Role           |
 |-----------------|--------------------------|
-| Atharva Wadekar | Project Lead / Developer |
+| Atharva Wadekar,Arshad Shaikh | Project Lead / Developer |
 |                 | Frontend & GIS           |
 |                 | Backend & Database       |
 
