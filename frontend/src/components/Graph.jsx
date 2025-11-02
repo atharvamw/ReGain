@@ -6,7 +6,8 @@ const ReGainNetwork = ({
   width = "100%",
   height = "600px",
   nodes = [],
-  edges = []
+  edges = [],
+  onNodeClick
 }) => {
   const containerRef = useRef(null);
   const networkRef = useRef(null);
@@ -14,7 +15,32 @@ const ReGainNetwork = ({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const nodeData = new DataSet(nodes);
+    // Configure nodes with central node as star
+    const nodeData = new DataSet(
+      nodes.map(node => ({
+        ...node,
+        shape: node.id === 0 ? "star" : "dot",
+        size: node.id === 0 ? 40 : 25,
+        color: node.id === 0 
+          ? {
+              border: "#e67e22",
+              background: "#f39c12",
+              highlight: { border: "#f39c12", background: "#e67e22" }
+            }
+          : {
+              border: "#f39c12",
+              background: "#f1c40f",
+              highlight: { border: "#f1c40f", background: "#f39c12" }
+            },
+        font: node.id === 0 
+          ? { color: "#fff", size: 18, face: "Poppins", bold: true }
+          : { color: "#fff", size: 16 },
+        fixed: node.id === 0 ? { x: true, y: true } : false,
+        x: node.id === 0 ? 0 : undefined,
+        y: node.id === 0 ? 0 : undefined
+      }))
+    );
+
     const rawEdges = edges;
 
     const maxDistance = Math.max(...rawEdges.map(e => e.distance || 1));
@@ -75,10 +101,16 @@ const ReGainNetwork = ({
       physics: {
         enabled: true,
         barnesHut: {
-          gravitationalConstant: -8000,
-          centralGravity: 0.4,
-          springConstant: 0.04,
-          damping: 0.09
+          gravitationalConstant: -10000,
+          centralGravity: 0.6,
+          springConstant: 0.05,
+          damping: 0.15,
+          avoidOverlap: 0.2
+        },
+        stabilization: {
+          enabled: true,
+          iterations: 200,
+          fit: true
         }
       },
       layout: {
@@ -95,6 +127,15 @@ const ReGainNetwork = ({
 
     const network = new Network(containerRef.current, data, options);
     networkRef.current = network;
+
+    // Add click event listener
+    if (onNodeClick) {
+      network.on("click", (params) => {
+        if (params.nodes.length > 0) {
+          onNodeClick(params.nodes[0]);
+        }
+      });
+    }
 
     // Keep central node centered
     network.once("stabilized", () => {
@@ -125,7 +166,7 @@ const ReGainNetwork = ({
     });
 
     return () => network.destroy();
-  }, [nodes, edges]);
+  }, [nodes, edges, onNodeClick]);
 
   return (
     <div
