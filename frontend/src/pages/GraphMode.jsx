@@ -4,6 +4,7 @@ import ReGainGraph from "../components/Graph"
 export default function GraphMode()
 {
     const [selectedNode, setSelectedNode] = useState(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     const nodes = [
         { 
@@ -72,9 +73,31 @@ export default function GraphMode()
         }
     }, []);
 
+    // Handle responsive layout
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return(
-        <div style={{ display: "flex", height: "calc(100vh - 120px)", gap: "0", width: "100%" }}>
-            <div style={{ flex: "1 1 auto", minWidth: 0, height: "100%" }}>
+        <div style={{ 
+            display: "flex", 
+            flexDirection: isMobile ? "column" : "row",
+            minHeight: "calc(100vh - 120px)", 
+            gap: "0", 
+            width: "100%" 
+        }}>
+            <div style={{ 
+                flex: isMobile ? "0 0 50vh" : "1 1 auto",
+                minWidth: 0, 
+                height: isMobile ? "50vh" : "calc(100vh - 120px)",
+                position: isMobile ? "relative" : "sticky",
+                top: isMobile ? "0" : "0"
+            }}>
                 <ReGainGraph 
                     nodes={nodes} 
                     edges={edges} 
@@ -85,16 +108,17 @@ export default function GraphMode()
             </div>
             
             <div style={{
-                width: "380px",
-                minWidth: "380px",
-                maxWidth: "380px",
+                width: isMobile ? "100%" : "380px",
+                minWidth: isMobile ? "100%" : "380px",
+                maxWidth: isMobile ? "100%" : "380px",
                 padding: "20px",
-                borderLeft: "3px solid #f39c12",
-                overflowY: "auto",
+                borderLeft: isMobile ? "none" : "3px solid #f39c12",
+                borderTop: isMobile ? "3px solid #f39c12" : "none",
                 backgroundColor: "#1a1a1a",
                 color: "#ffffff",
-                boxShadow: "-5px 0 15px rgba(0, 0, 0, 0.3)",
-                height: "100%"
+                boxShadow: isMobile 
+                    ? "0 -5px 15px rgba(0, 0, 0, 0.3)" 
+                    : "-5px 0 15px rgba(0, 0, 0, 0.3)"
             }}>
                 {selectedNode ? (
                     <>
@@ -127,7 +151,11 @@ export default function GraphMode()
                             Available Materials
                         </h3>
                         
-                        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <div style={{ 
+                            display: "flex", 
+                            flexDirection: "column", 
+                            gap: "10px"
+                        }}>
                             {selectedNode.materials.map((material, index) => (
                                 <div key={index} style={{
                                     padding: "14px",
