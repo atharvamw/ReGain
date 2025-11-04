@@ -8,6 +8,10 @@ import Navbar from './components/NavBar'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import GraphMode from './pages/GraphMode'
 import MapMode from './pages/MapMode'
+import Home from './pages/Home'
+import Register from './pages/Register'
+import ScrollTriggered from './pages/ScrollProgress'
+
 
 function App() {
 
@@ -15,6 +19,8 @@ function App() {
     <>
       <Navbar/>
       <Routes>
+          <Route path="/" element={<Home/>}/>
+          <Route path="/home" element={<Home/>}/>
           <Route path="/graph" element={<GraphMode/>}/>
           <Route path="/map" element={<MapMode/>}/>
       </Routes>
