@@ -19,9 +19,9 @@ export default function Navbar() {
 
     return (
         <motion.nav
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             style={navStyle}
         >
             <div style={navContainerStyle}>
@@ -33,14 +33,8 @@ export default function Navbar() {
                         whileTap={{ scale: 0.95 }}
                     >
                         <motion.span
-                            animate={{ 
-                                rotate: [0, 10, -10, 0],
-                            }}
-                            transition={{ 
-                                duration: 2, 
-                                repeat: Infinity,
-                                repeatDelay: 3
-                            }}
+                            whileHover={{ rotate: 15 }}
+                            transition={{ duration: 0.3 }}
                             style={{ display: "inline-block" }}
                         >
                             🧱
@@ -58,21 +52,21 @@ export default function Navbar() {
                             style={{ textDecoration: "none", position: "relative" }}
                         >
                             <motion.div
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 + 0.3 }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: index * 0.05 + 0.2, duration: 0.3 }}
                                 style={{
                                     ...navLinkStyle,
                                     color: isActive(link.path) ? "#f39c12" : "#ccc"
                                 }}
-                                whileHover={{ y: -2 }}
+                                whileHover={{ color: "#f39c12" }}
                             >
                                 {link.label}
                                 {isActive(link.path) && (
                                     <motion.div
                                         layoutId="activeTab"
                                         style={activeIndicatorStyle}
-                                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                        transition={{ type: "spring", stiffness: 500, damping: 35 }}
                                     />
                                 )}
                             </motion.div>

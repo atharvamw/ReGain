@@ -1,10 +1,10 @@
 import express from 'express'
 import mongoose from "mongoose";
 import dotenv from 'dotenv'
-import { getSites } from './models/site.js';
-import {checkUserExistance, getCredentials} from './models/auth.js'
 
 import SiteRouter from './routes/site.js'
+import AuthRouter from './routes/auth.js'
+import { checkUserExistance } from './models/auth.js';
 
 const app = express();
 app.use(express.json())
@@ -19,6 +19,17 @@ app.get("/", (req, res)=>{
 })
 
 app.use(SiteRouter)
+app.use(AuthRouter)
+
+
+app.use((err, req, res, next) => 
+{
+    if(err instanceof SyntaxError && err.status === 400 && "body" in err)
+    {
+        return res.status(400).json({error: "Provide a valid JSON body"});
+    }
+    next();
+})
 
 //console.log(await getSites());
 //console.log(await getCredentials());

@@ -11,6 +11,7 @@ import MapMode from './pages/MapMode'
 import Home from './pages/Home'
 import Register from './pages/Register'
 import ScrollTriggered from './pages/ScrollProgress'
+import Login from './pages/Login'
 
 
 function App() {
@@ -23,6 +24,8 @@ function App() {
           <Route path="/home" element={<Home/>}/>
           <Route path="/graph" element={<GraphMode/>}/>
           <Route path="/map" element={<MapMode/>}/>
+          <Route path="/login" element={<Login/>}/>
+          <Route path="/register" element={<Register/>}/>
       </Routes>
     </>
   )
