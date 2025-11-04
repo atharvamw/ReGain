@@ -1,10 +1,12 @@
-import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
 const loginSchema = mongoose.Schema({
     email: {type: String, required: true},
     password: {type: String, required: true},
-    adharCard: {type: String}
+    firstName: {type: String, required: true},
+    lastName: {type: String, required: true},
+    phoneNo: {type: String, required: true, match: /[0-9]{10}$/},
+    adharNo: {type: String}
 }, {collection: "credentials"})
 
 const Login = mongoose.model("Credential", loginSchema)
@@ -27,6 +29,7 @@ export async function checkUserExistance(email)
     try
     {
         const creds = await Login.findOne({email});
+        //console.log(creds?true:false)
 
         if(creds)
         {
@@ -39,18 +42,51 @@ export async function checkUserExistance(email)
     }
     catch(error)
     {
-
+        return {exists: null, message: "Error"}
     }
 }
 
-export async function register()
+export async function addUser(email, password, firstName, lastName)
 {
     try
-    {
+    {   
+        const doc = await checkUserExistance(email)
+        if(!doc.exists)
+        {
+            const res = await Login.create({email, password, firstName, lastName, phoneNo})
+            return {status: "success", data: res};
+        }
+        else
+        {
+            return {status: "failed", message: "User Already exists!"};
+        }
         
     }
     catch(error)
     {
+        return {status: "error", message: error};
+    }
+}
+
+export async function getUsers()
+{
+    try
+    {
+        const res = await Login.find().select("email firstName lastName").limit(100);
+
+        if(res)
+        {
+            return {status: "success", data: res};
+        }
+        else
+        {
+            return {status: "failed", message: "Failed to Fetch Users"};
+        }
         
+        
+    }
+    catch(error)
+    {
+        return {status: "error", message: error};
     }
 }

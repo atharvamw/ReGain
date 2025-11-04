@@ -1,15 +1,15 @@
-import { Mail, Lock, User, ArrowRight, Building2, Phone } from "lucide-react";
+import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
-export default function Register() {
+export default function Login() {
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.08,
-                delayChildren: 0.15
+                staggerChildren: 0.1,
+                delayChildren: 0.2
             }
         }
     };
@@ -19,7 +19,18 @@ export default function Register() {
         visible: {
             opacity: 1,
             x: 0,
-            transition: { duration: 0.4, ease: "easeOut" }
+            transition: { duration: 0.5, ease: "easeOut" }
+        }
+    };
+
+    const glowVariants = {
+        animate: {
+            boxShadow: [
+                "0 0 20px rgba(243, 156, 18, 0.3)",
+                "0 0 40px rgba(243, 156, 18, 0.5)",
+                "0 0 20px rgba(243, 156, 18, 0.3)"
+            ],
+            transition: { duration: 2, repeat: Infinity }
         }
     };
 
@@ -52,14 +63,14 @@ export default function Register() {
                 {/* Header */}
                 <motion.div variants={itemVariants} style={headerStyle}>
                     <motion.div
-                        whileHover={{ rotate: 360 }}
-                        transition={{ duration: 0.6 }}
-                        style={{ fontSize: "48px", marginBottom: "16px", cursor: "pointer" }}
+                        animate={{ rotate: [0, 360] }}
+                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                        style={{ fontSize: "48px", marginBottom: "16px" }}
                     >
                         🧱
                     </motion.div>
-                    <h1 style={titleStyle}>Join ReGain</h1>
-                    <p style={subtitleStyle}>Create your account to get started</p>
+                    <h1 style={titleStyle}>Welcome Back</h1>
+                    <p style={subtitleStyle}>Sign in to continue to ReGain</p>
                 </motion.div>
 
                 {/* Form */}
@@ -68,42 +79,6 @@ export default function Register() {
                     variants={containerVariants}
                     onSubmit={(e) => e.preventDefault()}
                 >
-                    {/* Full Name Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="fullname" style={labelStyle}>
-                            Full Name
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <User style={iconStyle} size={20} />
-                            <input
-                                type="text"
-                                id="fullname"
-                                name="fullname"
-                                placeholder="John Doe"
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
-
-                    {/* Company Name Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="company" style={labelStyle}>
-                            Company Name
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <Building2 style={iconStyle} size={20} />
-                            <input
-                                type="text"
-                                id="company"
-                                name="company"
-                                placeholder="Your Construction Co."
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
-
                     {/* Email Field */}
                     <motion.div variants={itemVariants} style={inputGroupStyle}>
                         <label htmlFor="email" style={labelStyle}>
@@ -116,24 +91,6 @@ export default function Register() {
                                 id="email"
                                 name="email"
                                 placeholder="you@example.com"
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
-
-                    {/* Phone Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="phone" style={labelStyle}>
-                            Phone Number
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <Phone style={iconStyle} size={20} />
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                placeholder="+1 (555) 000-0000"
                                 style={inputStyle}
                                 required
                             />
@@ -158,39 +115,15 @@ export default function Register() {
                         </div>
                     </motion.div>
 
-                    {/* Confirm Password Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="confirmPassword" style={labelStyle}>
-                            Confirm Password
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <Lock style={iconStyle} size={20} />
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                placeholder="••••••••"
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
-
-                    {/* Terms & Conditions */}
-                    <motion.div variants={itemVariants} style={checkboxContainerStyle}>
+                    {/* Remember Me & Forgot Password */}
+                    <motion.div variants={itemVariants} style={optionsStyle}>
                         <label style={checkboxLabelStyle}>
-                            <input type="checkbox" style={checkboxStyle} required />
-                            <span style={{ marginLeft: "8px", fontSize: "13px", lineHeight: "1.5" }}>
-                                I agree to the{" "}
-                                <Link to="/terms" style={linkStyle}>
-                                    Terms & Conditions
-                                </Link>{" "}
-                                and{" "}
-                                <Link to="/privacy" style={linkStyle}>
-                                    Privacy Policy
-                                </Link>
-                            </span>
+                            <input type="checkbox" style={checkboxStyle} />
+                            <span style={{ marginLeft: "8px", fontSize: "14px" }}>Remember me</span>
                         </label>
+                        <Link to="/forgot-password" style={linkStyle}>
+                            Forgot password?
+                        </Link>
                     </motion.div>
 
                     {/* Submit Button */}
@@ -201,15 +134,15 @@ export default function Register() {
                         whileTap={{ scale: 0.98 }}
                         type="submit"
                     >
-                        <span>Create Account</span>
+                        <span>Sign In</span>
                         <ArrowRight size={20} style={{ marginLeft: "8px" }} />
                     </motion.button>
 
-                    {/* Sign In Link */}
-                    <motion.p variants={itemVariants} style={signinTextStyle}>
-                        Already have an account?{" "}
-                        <Link to="/login" style={{ ...linkStyle, fontWeight: "600" }}>
-                            Sign in
+                    {/* Sign Up Link */}
+                    <motion.p variants={itemVariants} style={signupTextStyle}>
+                        Don't have an account?{" "}
+                        <Link to="/register" style={{ ...linkStyle, fontWeight: "600" }}>
+                            Sign up
                         </Link>
                     </motion.p>
                 </motion.form>
@@ -226,7 +159,7 @@ const pageStyle = {
     alignItems: "center",
     justifyContent: "center",
     background: "linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 50%, #1a1a1a 100%)",
-    padding: "60px 20px",
+    padding: "40px 20px",
     position: "relative",
     overflow: "hidden"
 };
@@ -257,7 +190,7 @@ const bgCircle2 = {
 
 const containerStyle = {
     width: "100%",
-    maxWidth: "520px",
+    maxWidth: "440px",
     background: "rgba(28, 28, 28, 0.8)",
     backdropFilter: "blur(20px)",
     borderRadius: "24px",
@@ -269,7 +202,7 @@ const containerStyle = {
 
 const headerStyle = {
     textAlign: "center",
-    marginBottom: "36px"
+    marginBottom: "40px"
 };
 
 const titleStyle = {
@@ -290,7 +223,7 @@ const subtitleStyle = {
 const formStyle = {
     display: "flex",
     flexDirection: "column",
-    gap: "20px"
+    gap: "24px"
 };
 
 const inputGroupStyle = {
@@ -331,13 +264,16 @@ const inputStyle = {
     fontFamily: "inherit"
 };
 
-const checkboxContainerStyle = {
-    marginTop: "4px"
+const optionsStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    fontSize: "14px"
 };
 
 const checkboxLabelStyle = {
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
     color: "#ccc",
     cursor: "pointer"
 };
@@ -345,15 +281,13 @@ const checkboxLabelStyle = {
 const checkboxStyle = {
     width: "16px",
     height: "16px",
-    cursor: "pointer",
-    marginTop: "2px",
-    flexShrink: 0
+    cursor: "pointer"
 };
 
 const linkStyle = {
     color: "#f39c12",
     textDecoration: "none",
-    fontSize: "13px",
+    fontSize: "14px",
     transition: "color 0.3s ease"
 };
 
@@ -371,13 +305,53 @@ const buttonStyle = {
     alignItems: "center",
     justifyContent: "center",
     transition: "all 0.3s ease",
-    boxShadow: "0 8px 24px rgba(243, 156, 18, 0.3)",
-    marginTop: "8px"
+    boxShadow: "0 8px 24px rgba(243, 156, 18, 0.3)"
 };
 
-const signinTextStyle = {
+const dividerStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    margin: "8px 0"
+};
+
+const dividerLineStyle = {
+    flex: 1,
+    height: "1px",
+    background: "#3a3a3a"
+};
+
+const dividerTextStyle = {
+    fontSize: "12px",
+    color: "#666",
+    fontWeight: "600"
+};
+
+const socialContainerStyle = {
+    display: "flex",
+    gap: "12px"
+};
+
+const socialButtonStyle = {
+    flex: 1,
+    padding: "14px",
+    fontSize: "14px",
+    fontWeight: "600",
+    background: "rgba(42, 42, 42, 0.6)",
+    color: "#ccc",
+    border: "1px solid #3a3a3a",
+    borderRadius: "12px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    transition: "all 0.3s ease"
+};
+
+const signupTextStyle = {
     textAlign: "center",
     fontSize: "14px",
     color: "#aaa",
-    margin: "4px 0 0 0"
+    margin: "8px 0 0 0"
 };

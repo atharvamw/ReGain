@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import jwt from 'jsonwebtoken'
 
 const siteSchema = mongoose.Schema({
     name: {type: String, required: true},
