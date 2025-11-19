@@ -3,14 +3,14 @@ import { useContext } from "react";
 import { AuthContext } from "../context/Auth";
 
 export default function ProtectedRoute({ children }) {
-    const Auth = useContext(AuthContext);
+    const { userAuth, loading } = useContext(AuthContext);
 
-    if (Auth.userAuth.firstName === null) {
-        return <Navigate to="/login" replace />;
+    if (loading) {
+        return <div>Loading... Please wait.</div>; // Visual indicator
     }
 
-    if (Auth.userAuth.firstName !== null && window.location.pathname === "/login") {
-        return <Navigate to="/dashboard" replace />;
+    if (!userAuth.firstName) {
+        return <Navigate to="/login" replace />;
     }
 
     return children;
