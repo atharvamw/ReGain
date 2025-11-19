@@ -34,6 +34,15 @@ export default function Login() {
         }
     };
 
+    function handleLogin(formData)
+    {
+        const email = formData.get("email")
+        const password = formData.get("password")
+
+
+        console.log(email, pass)
+    }
+
     return (
         <div style={pageStyle}>
             {/* Background decorative elements */}
@@ -77,7 +86,7 @@ export default function Login() {
                 <motion.form
                     style={formStyle}
                     variants={containerVariants}
-                    onSubmit={(e) => e.preventDefault()}
+                    action={handleLogin}
                 >
                     {/* Email Field */}
                     <motion.div variants={itemVariants} style={inputGroupStyle}>

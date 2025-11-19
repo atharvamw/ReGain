@@ -24,6 +24,23 @@ export async function getCredentials()
     }
 }
 
+export async function getPassword(email)
+{
+    try
+    {
+        const creds = await Login.findOne({email});
+
+        if(creds?.password)
+            return {status: "success", password: creds.password, message: "Success!"}
+        else
+            return {status: "failed", password: null, message: "User doesnt exist!"}
+    }
+    catch(error)
+    {
+        return {status: "error", message: "Failed to Fetch Credentials"}
+    }
+}
+
 export async function checkUserExistance(email)
 {
     try
