@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { addUser, getUsers, getPassword } from '../models/auth.js';
+import { addUser, getUsers, getPassword, getName } from '../models/auth.js';
 
 const saltRounds = 10;
 
@@ -68,14 +68,14 @@ export async function handleLogin(req, res)
             {
                 const token = jwt.sign({"email": email}, process.env.JWT_SECRET, {expiresIn: '30d'})
 
-                res.cookie("token", {
+                res.cookie("token", token, {
                     httpOnly: true,
                     maxAge: 1000 * 60 * 60 * 24 * 30,
                     secure: false,
                     sameSite: 'strict'
                 })
 
-                res.json({status: "success", token: token, message: "Login successful!"});
+                res.json({status: "success", firstName: creds.firstName, lastName: creds.lastName, message: "Login successful!"});
             }
             else
             {
@@ -92,5 +92,24 @@ export async function handleLogin(req, res)
     catch(error)
     {
         res.json({status: "error", message: error.toString()});
+    }
+}
+
+export async function handleAuth(req, res)
+{   
+    if(req.cookies.token)
+    {
+        const user = jwt.verify(req.cookies.token, process.env.JWT_SECRET)
+        
+        const creds = await getName(user.email)
+
+        if(user)
+            res.json({"authentication": "success", "email": user.email, "firstName": creds.firstName, "lastName": creds.lastName})
+        else
+            res.json({"authentication": "failed"})
+    }
+    else
+    {
+        res.json({"authentication": "failed", "message":"please login first"});
     }
 }

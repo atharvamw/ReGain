@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {MapContainer, TileLayer, Marker, Popup} from "react-leaflet"
 import L from "leaflet"
 import './App.css'
@@ -12,9 +12,24 @@ import Home from './pages/Home'
 import Register from './pages/Register'
 import ScrollTriggered from './pages/ScrollProgress'
 import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import ProtectedRoute from './components/ProtectedRoute'
+import { AuthContext } from './context/Auth'
+import { useContext } from 'react'
 
 
 function App() {
+
+  const Auth = useContext(AuthContext)
+
+  useEffect(()=>{
+
+    (async function()
+    {
+      await Auth.authenticate()
+    })()
+
+  }, [])
 
   return (
     <>
@@ -24,8 +39,16 @@ function App() {
           <Route path="/home" element={<Home/>}/>
           <Route path="/graph" element={<GraphMode/>}/>
           <Route path="/map" element={<MapMode/>}/>
-          <Route path="/login" element={<Login/>}/>
-          <Route path="/register" element={<Register/>}/>
+          <Route path="/login" element={<ProtectedRoute><Login/></ProtectedRoute>}/>
+          <Route path="/register" element={<ProtectedRoute><Register/></ProtectedRoute>}/>
+
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard/>
+            </ProtectedRoute>
+            }/>
+
+          
       </Routes>
     </>
   )

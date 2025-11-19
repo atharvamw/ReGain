@@ -1,8 +1,22 @@
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/Auth";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function Login() {
+
+    const Auth = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    if(Auth.userAuth.firstName)
+    {
+        navigate("/dashboard")
+    }
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -34,11 +48,25 @@ export default function Login() {
         }
     };
 
-    function handleLogin(formData)
+    async function handleLogin(formData)
     {
         const email = formData.get("email")
         const password = formData.get("password")
 
+        if(Auth.userAuth.firstName == null)
+        {
+            await Auth.login(email, password);
+
+            if(Auth.userAuth.firstName!= null)
+            {
+                navigate("/home")
+            }
+        }
+        else
+        {
+            alert("Your Already Logged In!");
+        }
+        
 
         console.log(email, pass)
     }
