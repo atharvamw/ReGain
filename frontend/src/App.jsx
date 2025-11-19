@@ -33,25 +33,25 @@ function App() {
 
   return (
     <>
-      <Navbar/>
+      <Navbar />
       <Routes>
-          <Route path="/" element={<Home/>}/>
-          <Route path="/home" element={<Home/>}/>
-          <Route path="/graph" element={<GraphMode/>}/>
-          <Route path="/map" element={<MapMode/>}/>
-          <Route path="/login" element={<ProtectedRoute><Login/></ProtectedRoute>}/>
-          <Route path="/register" element={<ProtectedRoute><Register/></ProtectedRoute>}/>
-
-          <Route path="/dashboard" element={
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/graph" element={<GraphMode />} />
+        <Route path="/map" element={<MapMode />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+          path="/dashboard"
+          element={
             <ProtectedRoute>
-              <Dashboard/>
+              <Dashboard />
             </ProtectedRoute>
-            }/>
-
-          
+          }
+        />
       </Routes>
     </>
-  )
+  );
 }
 
 export default App
