@@ -20,16 +20,11 @@ import { useContext } from 'react'
 
 function App() {
 
-  const Auth = useContext(AuthContext)
+  const { authenticate } = useContext(AuthContext);
 
-  useEffect(()=>{
-
-    (async function()
-    {
-      await Auth.authenticate()
-    })()
-
-  }, [])
+  useEffect(() => {
+    authenticate();
+  }, []);
 
   return (
     <>
