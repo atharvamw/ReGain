@@ -9,7 +9,7 @@ import App from './App.jsx'
 createRoot(document.getElementById('root')).render(
   <AuthProvider>
     <BrowserRouter>
-      <App className='flex items-center align-center justify-center'/>
+      <App />
     </BrowserRouter>
   </AuthProvider>
 )

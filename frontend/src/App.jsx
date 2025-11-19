@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import {MapContainer, TileLayer, Marker, Popup} from "react-leaflet"
 import L from "leaflet"
 import './App.css'
@@ -15,7 +15,6 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthContext } from './context/Auth'
-import { useContext } from 'react'
 
 
 function App() {
@@ -24,7 +23,7 @@ function App() {
 
   useEffect(() => {
     authenticate();
-  }, []);
+  }, [authenticate]);
 
   return (
     <>
