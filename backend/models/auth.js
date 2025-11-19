@@ -31,7 +31,7 @@ export async function getPassword(email)
         const creds = await Login.findOne({email});
 
         if(creds?.password)
-            return {status: "success", password: creds.password, message: "Success!"}
+            return {status: "success", password: creds.password, firstName: creds.firstName, lastName: creds.lastName, message: "Success!"}
         else
             return {status: "failed", password: null, message: "User doesnt exist!"}
     }
@@ -105,5 +105,23 @@ export async function getUsers()
     catch(error)
     {
         return {status: "error", message: error};
+    }
+}
+
+
+export async function getName(email)
+{
+    try
+    {
+        const creds = await Login.findOne({email});
+
+        if(creds?.firstName)
+            return {status: "success", firstName: creds.firstName, lastName: creds.lastName, message: "Success!"}
+        else
+            return {status: "failed", password: null, message: "User doesnt exist!"}
+    }
+    catch(error)
+    {
+        return {status: "error", message: "Failed to Fetch Credentials"}
     }
 }
