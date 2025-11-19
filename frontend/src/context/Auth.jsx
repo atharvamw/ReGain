@@ -63,13 +63,11 @@ export function AuthProvider(props)
 
         if(data.authentication === "success")
         {
-            console.log(data)
             setUserAuth({firstName: data.firstName, lastName: data.lastName})
             return true
         }
         else
         {
-            console.log(data)
             setUserAuth({firstName: null, lastName: null})
             return false
         }
