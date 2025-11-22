@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const siteSchema = mongoose.Schema({
     name: {type: String, required: true},
+    email: {type: String, required: true},
     phone: {type: String, required: true},
     isActive: {type: Boolean, default: true},
     materials: {type: Object},
@@ -62,6 +63,83 @@ export async function registerSite({name, phone, isActive, materials, location})
     catch(err)
     {
         return {status: "error", message: "Failed to register the site, please fill all the fields!\n" + err}
+    }
+}
+
+export async function getMySites(email)
+{
+    try
+    {
+        const data = await Site.find({email});
+        return {status: "success", data: data};
+    }
+    catch(err)
+    {
+        return {status: "error", message: err};
+    }
+}
+
+export async function updateMySite(siteId, email, updateObj)
+{
+    try
+    {
+        const data = await Site.findOneAndUpdate(
+        {
+        _id: siteId,
+        email: email  
+        }
+        , 
+        {
+            $set: updateObj
+        }, {new: true})
+
+        if(data)
+        {
+            return {status: "success", data: data};
+        }
+        else
+        {
+            return {status: "failed", message: "Invalid ID"};
+        }
+    }
+    catch(err)
+    {
+        if(err.name == "CastError")
+        {
+            return {status: "error", message: "Invalid ID"};
+        }
+        else
+        {
+            return {status: "error", message: err.toString()};
+        }
+    }
+}
+
+export async function addMySite(siteId, email, addObj)
+{
+    try
+    {
+        const data = await Site.create(addObj)
+
+        if(data)
+        {
+            return {status: "success", data: data};
+        }
+        else
+        {
+            return {status: "failed", message: "Invalid ID"};
+        }
+    }
+    catch(err)
+    {
+        if(err.name == "CastError")
+        {
+            return {status: "error", message: "Invalid ID"};
+        }
+        else
+        {
+            return {status: "error", message: err.toString()};
+        }
     }
 }
 

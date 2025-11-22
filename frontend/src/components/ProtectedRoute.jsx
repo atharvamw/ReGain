@@ -6,6 +6,7 @@ export default function ProtectedRoute({ children }) {
     const { userAuth, loading } = useContext(AuthContext);
 
     if (loading) {
+        console.log("ProtectedRoute is waiting, loading:", loading); // Debugging log
         return <div>Loading... Please wait.</div>; // Visual indicator
     }
 

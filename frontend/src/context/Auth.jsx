@@ -5,7 +5,6 @@ export const AuthContext = createContext(null);
 export function AuthProvider(props)
 {
     const [userAuth, setUserAuth] = useState({firstName: null, lastName: null});
-    const [loading, setLoading] = useState(false);
 
     async function login(email, password)
     {
@@ -56,36 +55,21 @@ export function AuthProvider(props)
 
     async function authenticate()
     {
-        setLoading(true);
-        console.log("Authentication started, loading:", loading); // Debugging log
-        try
-        {
-            const result = await fetch("https://api.regain.pp.ua/auth",{
-                method: "get",
-                credentials: "include"
-            })
-            const data = await result.json()
+        const result = await fetch("https://api.regain.pp.ua/auth",{
+            method: "get",
+            credentials: "include"
+        })
+        const data = await result.json()
 
-            if(data.authentication === "success")
-            {
-                setUserAuth({firstName: data.firstName, lastName: data.lastName})
-                return true
-            }
-            else
-            {
-                setUserAuth({firstName: null, lastName: null})
-                return false
-            }
-        }
-        catch(error)
+        if(data.authentication === "success")
         {
-            console.error("Authentication failed:", error);
-            setUserAuth({firstName: null, lastName: null});
+            setUserAuth({firstName: data.firstName, lastName: data.lastName})
+            return true
         }
-        finally
+        else
         {
-            setLoading(false);
-            console.log("Authentication finished, loading:", loading); // Debugging log
+            setUserAuth({firstName: null, lastName: null})
+            return false
         }
     }
 
