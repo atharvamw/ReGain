@@ -1,5 +1,5 @@
 import express from 'express'
-import { handleGetNearbySites, handleGetSites, handleRegisterSite, handleGetMySites, handleUpdateMySite } from '../controller/site.js'
+import { handleGetNearbySites, handleGetSites, handleRegisterSite, handleGetMySites, handleUpdateMySite, handleAddMySite } from '../controller/site.js'
 
 const router = express.Router()
 
@@ -12,5 +12,7 @@ router.post("/registerSite", handleRegisterSite)
 router.get("/getMySites", handleGetMySites)
 
 router.post("/updateMySite", handleUpdateMySite)
+
+router.post("/addMySite", handleAddMySite)
 
 export default router
