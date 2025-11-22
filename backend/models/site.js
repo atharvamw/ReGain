@@ -115,10 +115,15 @@ export async function updateMySite(siteId, email, updateObj)
     }
 }
 
-export async function addMySite(siteId, email, addObj)
+export async function addMySite(email, addObj)
 {
     try
     {
+        if(Site.findOne({email, name: addObj.name}))
+        {
+            return {status: "failed", data: "Already Exists"};
+        }
+        
         const data = await Site.create(addObj)
 
         if(data)

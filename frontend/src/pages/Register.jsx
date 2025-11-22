@@ -1,383 +1,230 @@
 import { Mail, Lock, User, ArrowRight, Building2, Phone } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
 
 export default function Register() {
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.08,
-                delayChildren: 0.15
-            }
-        }
-    };
+  const shouldReduceMotion = useReducedMotion();
 
-    const itemVariants = {
-        hidden: { opacity: 0, x: -20 },
-        visible: {
-            opacity: 1,
-            x: 0,
-            transition: { duration: 0.4, ease: "easeOut" }
-        }
-    };
+  // Animation variants - memoized for performance
+  const containerVariants = useMemo(() => ({
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: shouldReduceMotion ? 0.05 : 0.08,
+        delayChildren: shouldReduceMotion ? 0.1 : 0.15,
+      },
+    },
+  }), [shouldReduceMotion]);
 
-    return (
-        <div style={pageStyle}>
-            {/* Background decorative elements */}
-            <motion.div
-                style={bgCircle1}
-                animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.3, 0.5, 0.3]
-                }}
-                transition={{ duration: 8, repeat: Infinity }}
-            />
-            <motion.div
-                style={bgCircle2}
-                animate={{
-                    scale: [1.2, 1, 1.2],
-                    opacity: [0.3, 0.5, 0.3]
-                }}
-                transition={{ duration: 10, repeat: Infinity }}
-            />
+  const itemVariants = useMemo(() => ({
+    hidden: { opacity: 0, x: shouldReduceMotion ? 0 : -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: shouldReduceMotion ? 0.2 : 0.4, ease: "easeOut" },
+    },
+  }), [shouldReduceMotion]);
 
-            <motion.div
-                style={containerStyle}
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-            >
-                {/* Header */}
-                <motion.div variants={itemVariants} style={headerStyle}>
-                    <motion.div
-                        whileHover={{ rotate: 360 }}
-                        transition={{ duration: 0.6 }}
-                        style={{ fontSize: "48px", marginBottom: "16px", cursor: "pointer" }}
-                    >
-                        🧱
-                    </motion.div>
-                    <h1 style={titleStyle}>Join ReGain</h1>
-                    <p style={subtitleStyle}>Create your account to get started</p>
-                </motion.div>
+  return (
+    <div className="min-h-[calc(100vh-80px)] w-full flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] via-[#2c2c2c] to-[#1a1a1a] py-16 px-5 relative overflow-hidden">
+      {/* Background decorative circles - only animate on desktop */}
+      {!shouldReduceMotion && (
+        <>
+          <motion.div
+            className="absolute -top-[10%] -right-[5%] w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(243,156,18,0.15),transparent)] rounded-full blur-[80px] pointer-events-none"
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{ duration: 8, repeat: Infinity }}
+          />
+          <motion.div
+            className="absolute -bottom-[10%] -left-[5%] w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(241,196,15,0.1),transparent)] rounded-full blur-[100px] pointer-events-none"
+            animate={{
+              scale: [1.1, 1, 1.1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{ duration: 10, repeat: Infinity }}
+          />
+        </>
+      )}
 
-                {/* Form */}
-                <motion.form
-                    style={formStyle}
-                    variants={containerVariants}
-                    onSubmit={(e) => e.preventDefault()}
-                >
-                    {/* Full Name Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="fullname" style={labelStyle}>
-                            Full Name
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <User style={iconStyle} size={20} />
-                            <input
-                                type="text"
-                                id="fullname"
-                                name="fullname"
-                                placeholder="John Doe"
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
+      {/* Register Card */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-[520px] bg-[rgba(28,28,28,0.8)] backdrop-blur-xl rounded-3xl p-12 border border-[rgba(243,156,18,0.2)] shadow-[0_20px_60px_rgba(0,0,0,0.5)] z-10"
+      >
+        {/* Header */}
+        <motion.div variants={itemVariants} className="text-center mb-9">
+          <motion.div
+            className="text-5xl mb-4 inline-block cursor-pointer"
+            whileHover={shouldReduceMotion ? {} : { rotate: 360 }}
+            transition={{ duration: 0.6 }}
+          >
+            🧱
+          </motion.div>
+          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-[#f39c12] to-[#f1c40f] bg-clip-text text-transparent mb-2">
+            Join ReGain
+          </h1>
+          <p className="text-base text-[#aaa]">Create your account to get started</p>
+        </motion.div>
 
-                    {/* Company Name Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="company" style={labelStyle}>
-                            Company Name
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <Building2 style={iconStyle} size={20} />
-                            <input
-                                type="text"
-                                id="company"
-                                name="company"
-                                placeholder="Your Construction Co."
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
+        {/* Register Form */}
+        <motion.form
+          variants={containerVariants}
+          onSubmit={(e) => e.preventDefault()}
+          className="flex flex-col gap-5"
+        >
+          {/* Full Name */}
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
+            <label htmlFor="fullname" className="text-sm font-semibold text-[#ccc]">
+              Full Name
+            </label>
+            <div className="relative flex items-center">
+              <User className="absolute left-4 text-[#888] pointer-events-none" size={20} />
+              <input
+                type="text"
+                id="fullname"
+                name="fullname"
+                placeholder="John Doe"
+                required
+                className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
+              />
+            </div>
+          </motion.div>
 
-                    {/* Email Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="email" style={labelStyle}>
-                            Email Address
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <Mail style={iconStyle} size={20} />
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="you@example.com"
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
+          {/* Company Name */}
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
+            <label htmlFor="company" className="text-sm font-semibold text-[#ccc]">
+              Company Name
+            </label>
+            <div className="relative flex items-center">
+              <Building2 className="absolute left-4 text-[#888] pointer-events-none" size={20} />
+              <input
+                type="text"
+                id="company"
+                name="company"
+                placeholder="Your Construction Co."
+                required
+                className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
+              />
+            </div>
+          </motion.div>
 
-                    {/* Phone Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="phone" style={labelStyle}>
-                            Phone Number
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <Phone style={iconStyle} size={20} />
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                placeholder="+1 (555) 000-0000"
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
+          {/* Email */}
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
+            <label htmlFor="email" className="text-sm font-semibold text-[#ccc]">
+              Email Address
+            </label>
+            <div className="relative flex items-center">
+              <Mail className="absolute left-4 text-[#888] pointer-events-none" size={20} />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+                className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
+              />
+            </div>
+          </motion.div>
 
-                    {/* Password Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="password" style={labelStyle}>
-                            Password
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <Lock style={iconStyle} size={20} />
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                placeholder="••••••••"
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
+          {/* Phone */}
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
+            <label htmlFor="phone" className="text-sm font-semibold text-[#ccc]">
+              Phone Number
+            </label>
+            <div className="relative flex items-center">
+              <Phone className="absolute left-4 text-[#888] pointer-events-none" size={20} />
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="+1 (555) 000-0000"
+                required
+                className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
+              />
+            </div>
+          </motion.div>
 
-                    {/* Confirm Password Field */}
-                    <motion.div variants={itemVariants} style={inputGroupStyle}>
-                        <label htmlFor="confirmPassword" style={labelStyle}>
-                            Confirm Password
-                        </label>
-                        <div style={inputWrapperStyle}>
-                            <Lock style={iconStyle} size={20} />
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                placeholder="••••••••"
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                    </motion.div>
+          {/* Password */}
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
+            <label htmlFor="password" className="text-sm font-semibold text-[#ccc]">
+              Password
+            </label>
+            <div className="relative flex items-center">
+              <Lock className="absolute left-4 text-[#888] pointer-events-none" size={20} />
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                required
+                className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
+              />
+            </div>
+          </motion.div>
 
-                    {/* Terms & Conditions */}
-                    <motion.div variants={itemVariants} style={checkboxContainerStyle}>
-                        <label style={checkboxLabelStyle}>
-                            <input type="checkbox" style={checkboxStyle} required />
-                            <span style={{ marginLeft: "8px", fontSize: "13px", lineHeight: "1.5" }}>
-                                I agree to the{" "}
-                                <Link to="/terms" style={linkStyle}>
-                                    Terms & Conditions
-                                </Link>{" "}
-                                and{" "}
-                                <Link to="/privacy" style={linkStyle}>
-                                    Privacy Policy
-                                </Link>
-                            </span>
-                        </label>
-                    </motion.div>
+          {/* Confirm Password */}
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
+            <label htmlFor="confirmPassword" className="text-sm font-semibold text-[#ccc]">
+              Confirm Password
+            </label>
+            <div className="relative flex items-center">
+              <Lock className="absolute left-4 text-[#888] pointer-events-none" size={20} />
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="••••••••"
+                required
+                className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
+              />
+            </div>
+          </motion.div>
 
-                    {/* Submit Button */}
-                    <motion.button
-                        variants={itemVariants}
-                        style={buttonStyle}
-                        whileHover={{ scale: 1.02, boxShadow: "0 10px 40px rgba(243, 156, 18, 0.4)" }}
-                        whileTap={{ scale: 0.98 }}
-                        type="submit"
-                    >
-                        <span>Create Account</span>
-                        <ArrowRight size={20} style={{ marginLeft: "8px" }} />
-                    </motion.button>
+          {/* Terms & Conditions */}
+          <motion.div variants={itemVariants} className="mt-1">
+            <label className="flex items-start text-[#ccc] cursor-pointer">
+              <input type="checkbox" required className="w-4 h-4 cursor-pointer mt-0.5 flex-shrink-0" />
+              <span className="ml-2 text-xs leading-relaxed">
+                I agree to the{" "}
+                <Link to="/terms" className="text-[#f39c12] no-underline hover:underline">
+                  Terms & Conditions
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="text-[#f39c12] no-underline hover:underline">
+                  Privacy Policy
+                </Link>
+              </span>
+            </label>
+          </motion.div>
 
-                    {/* Sign In Link */}
-                    <motion.p variants={itemVariants} style={signinTextStyle}>
-                        Already have an account?{" "}
-                        <Link to="/login" style={{ ...linkStyle, fontWeight: "600" }}>
-                            Sign in
-                        </Link>
-                    </motion.p>
-                </motion.form>
-            </motion.div>
-        </div>
-    );
+          {/* Submit Button */}
+          <motion.button
+            variants={itemVariants}
+            type="submit"
+            className="w-full py-4 mt-2 text-base font-bold bg-gradient-to-r from-[#f39c12] to-[#e67e22] text-[#1a1a1a] border-none rounded-xl cursor-pointer flex items-center justify-center transition-all duration-300 shadow-[0_8px_24px_rgba(243,156,18,0.3)]"
+            whileHover={shouldReduceMotion ? {} : { scale: 1.02, boxShadow: "0 10px 40px rgba(243, 156, 18, 0.4)" }}
+            whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}
+          >
+            <span>Create Account</span>
+            <ArrowRight size={20} className="ml-2" />
+          </motion.button>
+
+          {/* Sign In Link */}
+          <motion.p variants={itemVariants} className="text-center text-sm text-[#aaa] mt-1">
+            Already have an account?{" "}
+            <Link to="/login" className="text-[#f39c12] font-semibold no-underline hover:underline">
+              Sign in
+            </Link>
+          </motion.p>
+        </motion.form>
+      </motion.div>
+    </div>
+  );
 }
-
-// Styles
-const pageStyle = {
-    minHeight: "calc(100vh - 80px)", // Subtract approximate navbar height
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 50%, #1a1a1a 100%)",
-    padding: "60px 20px",
-    position: "relative",
-    overflow: "hidden"
-};
-
-const bgCircle1 = {
-    position: "absolute",
-    top: "-10%",
-    right: "-5%",
-    width: "500px",
-    height: "500px",
-    background: "radial-gradient(circle, rgba(243, 156, 18, 0.15), transparent)",
-    borderRadius: "50%",
-    filter: "blur(80px)",
-    pointerEvents: "none"
-};
-
-const bgCircle2 = {
-    position: "absolute",
-    bottom: "-10%",
-    left: "-5%",
-    width: "600px",
-    height: "600px",
-    background: "radial-gradient(circle, rgba(241, 196, 15, 0.1), transparent)",
-    borderRadius: "50%",
-    filter: "blur(100px)",
-    pointerEvents: "none"
-};
-
-const containerStyle = {
-    width: "100%",
-    maxWidth: "520px",
-    background: "rgba(28, 28, 28, 0.8)",
-    backdropFilter: "blur(20px)",
-    borderRadius: "24px",
-    padding: "48px 40px",
-    border: "1px solid rgba(243, 156, 18, 0.2)",
-    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
-    zIndex: 1
-};
-
-const headerStyle = {
-    textAlign: "center",
-    marginBottom: "36px"
-};
-
-const titleStyle = {
-    fontSize: "32px",
-    fontWeight: "800",
-    background: "linear-gradient(135deg, #f39c12, #f1c40f)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    marginBottom: "8px"
-};
-
-const subtitleStyle = {
-    fontSize: "16px",
-    color: "#aaa",
-    margin: 0
-};
-
-const formStyle = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px"
-};
-
-const inputGroupStyle = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px"
-};
-
-const labelStyle = {
-    fontSize: "14px",
-    fontWeight: "600",
-    color: "#ccc"
-};
-
-const inputWrapperStyle = {
-    position: "relative",
-    display: "flex",
-    alignItems: "center"
-};
-
-const iconStyle = {
-    position: "absolute",
-    left: "16px",
-    color: "#888",
-    pointerEvents: "none"
-};
-
-const inputStyle = {
-    width: "100%",
-    padding: "14px 16px 14px 48px",
-    fontSize: "15px",
-    background: "rgba(42, 42, 42, 0.6)",
-    border: "1px solid #3a3a3a",
-    borderRadius: "12px",
-    color: "#fff",
-    outline: "none",
-    transition: "all 0.3s ease",
-    fontFamily: "inherit"
-};
-
-const checkboxContainerStyle = {
-    marginTop: "4px"
-};
-
-const checkboxLabelStyle = {
-    display: "flex",
-    alignItems: "flex-start",
-    color: "#ccc",
-    cursor: "pointer"
-};
-
-const checkboxStyle = {
-    width: "16px",
-    height: "16px",
-    cursor: "pointer",
-    marginTop: "2px",
-    flexShrink: 0
-};
-
-const linkStyle = {
-    color: "#f39c12",
-    textDecoration: "none",
-    fontSize: "13px",
-    transition: "color 0.3s ease"
-};
-
-const buttonStyle = {
-    width: "100%",
-    padding: "16px",
-    fontSize: "16px",
-    fontWeight: "700",
-    background: "linear-gradient(135deg, #f39c12, #e67e22)",
-    color: "#1a1a1a",
-    border: "none",
-    borderRadius: "12px",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "all 0.3s ease",
-    boxShadow: "0 8px 24px rgba(243, 156, 18, 0.3)",
-    marginTop: "8px"
-};
-
-const signinTextStyle = {
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#aaa",
-    margin: "4px 0 0 0"
-};

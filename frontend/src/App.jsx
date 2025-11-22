@@ -35,7 +35,7 @@ function App() {
         <Route path="/map" element={<ProtectedRoute><MapMode /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/mysites" element={<MySites />} />
+        <Route path="/mysites" element={<ProtectedRoute><MySites /></ProtectedRoute>} />
         <Route
           path="/dashboard"
           element={

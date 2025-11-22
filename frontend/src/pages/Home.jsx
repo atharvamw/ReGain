@@ -1,26 +1,29 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
 
 export default function Home() {
-    const fadeInUp = {
-        initial: { opacity: 0, y: 60 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.6 }
-    };
+    const shouldReduceMotion = useReducedMotion();
 
-    const staggerContainer = {
+    const fadeInUp = useMemo(() => ({
+        initial: { opacity: 0, y: shouldReduceMotion ? 0 : 60 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: shouldReduceMotion ? 0.3 : 0.6 }
+    }), [shouldReduceMotion]);
+
+    const staggerContainer = useMemo(() => ({
         animate: {
             transition: {
-                staggerChildren: 0.2
+                staggerChildren: shouldReduceMotion ? 0.1 : 0.2
             }
         }
-    };
+    }), [shouldReduceMotion]);
 
-    const scaleIn = {
-        initial: { opacity: 0, scale: 0.9 },
+    const scaleIn = useMemo(() => ({
+        initial: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.9 },
         animate: { opacity: 1, scale: 1 },
-        transition: { duration: 0.4 }
-    };
+        transition: { duration: shouldReduceMotion ? 0.2 : 0.4 }
+    }), [shouldReduceMotion]);
 
     const fadeIn = {
         initial: { opacity: 0 },
@@ -40,7 +43,7 @@ export default function Home() {
                     <motion.div {...fadeInUp}>
                         <motion.h1 
                             style={heroTitleStyle}
-                            animate={{ 
+                            animate={shouldReduceMotion ? {} : { 
                                 textShadow: [
                                     "0 0 20px rgba(243, 156, 18, 0.5)",
                                     "0 0 40px rgba(243, 156, 18, 0.8)",
@@ -87,17 +90,21 @@ export default function Home() {
                     </motion.div>
                 </div>
 
-                {/* Animated background elements */}
-                <motion.div
-                    style={floatingElement1}
-                    animate={{ y: [-20, 20, -20], rotate: [0, 5, 0] }}
-                    transition={{ duration: 6, repeat: Infinity }}
-                />
-                <motion.div
-                    style={floatingElement2}
-                    animate={{ y: [20, -20, 20], rotate: [0, -5, 0] }}
-                    transition={{ duration: 8, repeat: Infinity }}
-                />
+                {/* Animated background elements - only on desktop */}
+                {!shouldReduceMotion && (
+                    <>
+                        <motion.div
+                            style={floatingElement1}
+                            animate={{ y: [-20, 20, -20], rotate: [0, 5, 0] }}
+                            transition={{ duration: 6, repeat: Infinity }}
+                        />
+                        <motion.div
+                            style={floatingElement2}
+                            animate={{ y: [20, -20, 20], rotate: [0, -5, 0] }}
+                            transition={{ duration: 8, repeat: Infinity }}
+                        />
+                    </>
+                )}
             </motion.section>
 
             {/* How It Works Section */}

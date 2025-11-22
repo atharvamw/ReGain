@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/Auth";
 
 export default function Navbar() {
   const location = useLocation();
   const Auth = useContext(AuthContext);
+  const shouldReduceMotion = useReducedMotion();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -28,18 +29,23 @@ export default function Navbar() {
         { path: "/home", label: "Home" },
         { path: "/graph", label: "Graph Mode" },
         { path: "/map", label: "Map Mode" },
-        { path: "/dashboard", label: "Dashboard" },
         { path: "/mysites", label: "My Sites" },
+        { path: "/dashboard", label: "Dashboard" },
       ]);
-      console.log(Auth.userAuth.firstName);
+    } else {
+      setNavLinks([
+        { path: "/home", label: "Home" },
+        { path: "/login", label: "Login" },
+        { path: "/register", label: "Register" },
+      ]);
     }
-  }, [Auth.userAuth]);
+  }, [Auth.userAuth.firstName]);
 
   return (
     <motion.nav
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: shouldReduceMotion ? 0.2 : 0.4, ease: [0.22, 1, 0.36, 1] }}
       style={navStyle}
     >
       <div style={navContainerStyle}>

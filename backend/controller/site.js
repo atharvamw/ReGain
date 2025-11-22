@@ -1,4 +1,4 @@
-import { getNearestSites, getSites, registerSite, getMySites, updateMySite } from '../models/site.js'
+import { getNearestSites, getSites, registerSite, getMySites, updateMySite, addMySite } from '../models/site.js'
 import jwt from 'jsonwebtoken'
 
 export async function handleGetSites(req, res){
@@ -218,7 +218,7 @@ export async function handleAddMySite(req, res)
                     res.json({status: "failed", message: "Invalid Locations"});
                 }
                 
-                const updateData = {name, phone, isActive, materials, location}
+                const addData = {name, email: token.email, phone, isActive, materials, location}
 
                 /* Not Necessary all of them just any one or more.
                     {
@@ -234,7 +234,7 @@ export async function handleAddMySite(req, res)
                     }
                 */
                 
-                const data = await updateMySite(id, token.email,updateData);
+                const data = await addMySite(token.email, addData);
                 res.json(data)
             }
             else
