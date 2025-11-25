@@ -47,6 +47,25 @@
   nav > div > button {
     display: block !important;
   }
+
+  /* Dashboard sidebar responsive */
+  .dashboard-sidebar {
+    flex-direction: row !important;
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #3a3a3a !important;
+  }
+
+  /* Button text truncation on mobile */
+  button {
+    max-width: 100%;
+    word-wrap: break-word;
+  }
+
+  /* Grid responsive fixes */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 @keyframes spin {
@@ -74,4 +93,10 @@
 .custom-user-marker {
   background: transparent !important;
   border: none !important;
+}
+
+/* Ensure buttons don't overflow */
+button, a {
+  box-sizing: border-box;
+  max-width: 100%;
 }
