@@ -19,9 +19,59 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
-/* ...existing code... */
+/* Hide Leaflet Routing Machine control panel */
+.leaflet-routing-container {
+  display: none !important;
+}
+
+.leaflet-top.leaflet-right {
+  display: none !important;
+}
+
+/* Custom leaflet popup styling */
+.leaflet-popup-content-wrapper {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.leaflet-popup-tip {
+  background-color: #fff;
+}
+
+/* Navbar mobile menu button visibility */
+@media (max-width: 768px) {
+  nav > div > div:nth-child(2) {
+    display: none !important;
+  }
+  nav > div > button {
+    display: block !important;
+  }
+}
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Pulsing animation for user location marker */
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* Custom user marker styling */
+.custom-user-marker {
+  background: transparent !important;
+  border: none !important;
 }

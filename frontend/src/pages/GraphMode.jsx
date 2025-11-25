@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ReGainGraph from "../components/Graph"
+import { ShoppingCart, MapPin, Mail } from "lucide-react";
 
 export default function GraphMode()
 {
@@ -143,6 +144,22 @@ export default function GraphMode()
         boxShadow: "0 2px 8px rgba(243, 156, 18, 0.3)"
     };
 
+    const siteNameStyle = {
+        margin: "0 0 16px 0",
+        fontSize: "28px",
+        fontWeight: "700",
+        color: "#f1c40f"
+    };
+
+    const sectionTitleStyle = {
+        fontSize: "18px",
+        fontWeight: "600",
+        color: "#f39c12",
+        marginBottom: "16px",
+        paddingBottom: "8px",
+        borderBottom: "2px solid #f39c12"
+    };
+
     return(
         <div style={containerStyle}>
             <div style={graphContainerStyle}>
@@ -158,36 +175,45 @@ export default function GraphMode()
             <div style={sidebarStyle}>
                 {selectedNode ? (
                     <>
-                        <h2 style={headerStyle}>{selectedNode.label}</h2>
-                        
-                        <div style={infoBoxStyle}>
-                            <p style={{ marginBottom: "8px", fontSize: "14px" }}>
-                                <strong style={{ color: "#f1c40f" }}>📍 Location:</strong> {selectedNode.location}
-                            </p>
-                            <p style={{ fontSize: "14px", margin: "0" }}>
-                                <strong style={{ color: "#f1c40f" }}>✉️ Contact:</strong> {selectedNode.contact}
-                            </p>
+                        <div style={headerStyle}>
+                            <h2 style={siteNameStyle}>{selectedNode.label}</h2>
+                            <div style={infoBoxStyle}>
+                                <p style={{ margin: "0 0 6px 0", fontSize: "14px", color: "#ccc", display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <MapPin size={16} />
+                                    <strong style={{ color: "#f39c12" }}>Location:</strong> {selectedNode.location}
+                                </p>
+                                <p style={{ margin: "0", fontSize: "14px", color: "#ccc", display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <Mail size={16} />
+                                    <strong style={{ color: "#f39c12" }}>Contact:</strong> {selectedNode.contact}
+                                </p>
+                            </div>
                         </div>
-                        
-                        <h3 style={{ color: "#f39c12", fontSize: "18px", fontWeight: "600", marginBottom: "16px" }}>
-                            📦 Available Materials
-                        </h3>
-                        
-                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        <div style={{ flex: 1, overflowY: "auto" }}>
+                            <h3 style={sectionTitleStyle}>Available Materials</h3>
                             {selectedNode.materials.map((material, index) => (
-                                <div key={index} style={materialCardStyle}>
-                                    <h4 style={{ margin: "0 0 12px 0", color: "#f1c40f", fontSize: "16px", fontWeight: "600" }}>
+                                <div 
+                                    key={index} 
+                                    style={materialCardStyle}
+                                    onMouseOver={(e) => {
+                                        e.currentTarget.style.borderColor = "#f39c12";
+                                        e.currentTarget.style.transform = "translateX(4px)";
+                                    }}
+                                    onMouseOut={(e) => {
+                                        e.currentTarget.style.borderColor = "#3a3a3a";
+                                        e.currentTarget.style.transform = "translateX(0)";
+                                    }}
+                                >
+                                    <h4 style={{ margin: "0 0 12px 0", fontSize: "18px", color: "#f1c40f", fontWeight: "700" }}>
                                         {material.name}
                                     </h4>
-                                    
-                                    <div style={{ marginBottom: "12px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
                                         <p style={{ margin: "0", fontSize: "14px", display: "flex", justifyContent: "space-between" }}>
-                                            <span style={{ color: "#aaa" }}>Stock:</span>
-                                            <strong>{material.quantity} {material.unit}</strong>
+                                            <span style={{ color: "#aaa" }}>Quantity:</span>
+                                            <strong>{material.quantity}{material.unit}</strong>
                                         </p>
                                         <p style={{ margin: "0", fontSize: "14px", display: "flex", justifyContent: "space-between" }}>
                                             <span style={{ color: "#aaa" }}>Price:</span>
-                                            <strong>${material.price}/{material.unit}</strong>
+                                            <strong>₹{material.price}/{material.unit}</strong>
                                         </p>
                                         <p style={{ 
                                             margin: "0", 
@@ -198,7 +224,7 @@ export default function GraphMode()
                                             borderTop: "1px solid #3a3a3a"
                                         }}>
                                             <span style={{ color: "#aaa" }}>Total:</span>
-                                            <strong style={{ color: "#f39c12" }}>${material.price * material.quantity}</strong>
+                                            <strong style={{ color: "#f39c12" }}>₹{material.price * material.quantity}</strong>
                                         </p>
                                     </div>
                                     
@@ -214,7 +240,8 @@ export default function GraphMode()
                                             e.target.style.transform = "translateY(0)";
                                         }}
                                     >
-                                        🛒 Buy Listing
+                                        <ShoppingCart size={16} style={{ marginRight: "6px" }} />
+                                        Buy Listing
                                     </button>
                                 </div>
                             ))}
@@ -222,7 +249,7 @@ export default function GraphMode()
                     </>
                 ) : (
                     <div style={{ textAlign: "center", padding: "60px 20px", color: "#666" }}>
-                        <p style={{ fontSize: "16px" }}>👆 Click on a node to view details</p>
+                        <p style={{ fontSize: "16px" }}>Click on a node to view details</p>
                     </div>
                 )}
             </div>

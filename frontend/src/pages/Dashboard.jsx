@@ -1,15 +1,581 @@
-import { AuthContext } from "../context/Auth"
-import { useContext } from "react"
+import { AuthContext } from "../context/Auth";
+import { useContext, useState } from "react";
+import { motion } from "framer-motion";
+import { Package, MessageSquare, User, X, CheckCircle, XCircle, TrendingUp } from "lucide-react";
 
-export default function Dashboard()
-{
-    const Auth = useContext(AuthContext)
+export default function Dashboard() {
+  const Auth = useContext(AuthContext);
+  const [activeTab, setActiveTab] = useState("orders");
 
-    return(
-        <>
-            <div>
-                <h1>Welcome to Dashboard, {Auth.userAuth.firstName}!</h1>
+  // Mock data for orders
+  const mockOrders = [
+    {
+      id: "ORD-001",
+      material: "Cement",
+      quantity: 500,
+      unit: "kg",
+      price: 25,
+      total: 12500,
+      buyer: "Site Alpha",
+      status: "processing",
+      date: "2024-01-15",
+    },
+    {
+      id: "ORD-002",
+      material: "Steel Bars",
+      quantity: 200,
+      unit: "kg",
+      price: 45,
+      total: 9000,
+      buyer: "Site Beta",
+      status: "processing",
+      date: "2024-01-14",
+    },
+  ];
+
+  // Mock data for negotiations
+  const mockNegotiations = [
+    {
+      id: "NEG-001",
+      material: "Bricks",
+      quantity: 1000,
+      unit: "pcs",
+      listedPrice: 15,
+      offeredPrice: 12,
+      buyer: "Site Gamma",
+      date: "2024-01-16",
+    },
+    {
+      id: "NEG-002",
+      material: "Sand",
+      quantity: 750,
+      unit: "kg",
+      listedPrice: 10,
+      offeredPrice: 8,
+      buyer: "Site Delta",
+      date: "2024-01-15",
+    },
+  ];
+
+  const handleCancel = (orderId) => {
+    alert(`Order ${orderId} cancelled and refunded`);
+  };
+
+  const handleShipped = (orderId) => {
+    alert(`Order ${orderId} marked as shipped`);
+  };
+
+  const handleReject = (negId) => {
+    alert(`Negotiation ${negId} rejected`);
+  };
+
+  const handleAccept = (negId) => {
+    alert(`Negotiation ${negId} accepted`);
+  };
+
+  return (
+    <div style={containerStyle}>
+      {/* Sidebar */}
+      <motion.aside
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.4 }}
+        style={sidebarStyle}
+      >
+        <div style={sidebarHeaderStyle}>
+          <h2 style={sidebarTitleStyle}>
+            <TrendingUp size={24} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "8px" }} />
+            Dashboard
+          </h2>
+          <p style={userNameStyle}>
+            <User size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+            {Auth.userAuth.firstName}
+          </p>
+        </div>
+
+        <nav style={navStyle}>
+          <motion.button
+            onClick={() => setActiveTab("orders")}
+            style={{
+              ...navButtonStyle,
+              ...(activeTab === "orders" ? activeNavButtonStyle : {}),
+            }}
+            whileHover={{ x: 5 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Package size={20} />
+            <span>Orders Placed</span>
+          </motion.button>
+
+          <motion.button
+            onClick={() => setActiveTab("negotiations")}
+            style={{
+              ...navButtonStyle,
+              ...(activeTab === "negotiations" ? activeNavButtonStyle : {}),
+            }}
+            whileHover={{ x: 5 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <MessageSquare size={20} />
+            <span>Negotiations</span>
+          </motion.button>
+        </nav>
+      </motion.aside>
+
+      {/* Main Content */}
+      <main style={mainContentStyle}>
+        {activeTab === "orders" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h1 style={pageHeaderStyle}>
+              <Package size={32} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "12px" }} />
+              Orders Placed
+            </h1>
+            <p style={pageDescStyle}>
+              Manage your active orders. Cancel or mark as shipped.
+            </p>
+
+            <div style={cardsContainerStyle}>
+              {mockOrders.map((order) => (
+                <motion.div
+                  key={order.id}
+                  style={orderCardStyle}
+                  whileHover={{ y: -5, boxShadow: "0 8px 30px rgba(243, 156, 18, 0.3)" }}
+                >
+                  <div style={cardHeaderStyle}>
+                    <h3 style={orderIdStyle}>{order.id}</h3>
+                    <span style={statusBadgeStyle}>{order.status}</span>
+                  </div>
+
+                  <div style={orderDetailsStyle}>
+                    <div style={detailRowStyle}>
+                      <span style={labelStyle}>Material:</span>
+                      <span style={valueStyle}>{order.material}</span>
+                    </div>
+                    <div style={detailRowStyle}>
+                      <span style={labelStyle}>Quantity:</span>
+                      <span style={valueStyle}>
+                        {order.quantity} {order.unit}
+                      </span>
+                    </div>
+                    <div style={detailRowStyle}>
+                      <span style={labelStyle}>Price:</span>
+                      <span style={valueStyle}>₹{order.price}/{order.unit}</span>
+                    </div>
+                    <div style={detailRowStyle}>
+                      <span style={labelStyle}>Buyer:</span>
+                      <span style={valueStyle}>{order.buyer}</span>
+                    </div>
+                    <div style={{ ...detailRowStyle, ...totalRowStyle }}>
+                      <span style={labelStyle}>Total:</span>
+                      <span style={totalValueStyle}>₹{order.total}</span>
+                    </div>
+                  </div>
+
+                  <div style={actionButtonsStyle}>
+                    <motion.button
+                      onClick={() => handleCancel(order.id)}
+                      style={cancelButtonStyle}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <X size={16} style={{ marginRight: "6px" }} />
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      onClick={() => handleShipped(order.id)}
+                      style={shippedButtonStyle}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <CheckCircle size={16} style={{ marginRight: "6px" }} />
+                      Ship
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-        </>
-    )
+          </motion.div>
+        )}
+
+        {activeTab === "negotiations" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h1 style={pageHeaderStyle}>
+              <MessageSquare size={32} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "12px" }} />
+              Negotiations
+            </h1>
+            <p style={pageDescStyle}>
+              Review price negotiation requests from buyers.
+            </p>
+
+            <div style={cardsContainerStyle}>
+              {mockNegotiations.map((neg) => (
+                <motion.div
+                  key={neg.id}
+                  style={negotiationCardStyle}
+                  whileHover={{ y: -5, boxShadow: "0 8px 30px rgba(243, 156, 18, 0.3)" }}
+                >
+                  <div style={cardHeaderStyle}>
+                    <h3 style={orderIdStyle}>{neg.id}</h3>
+                    <span style={dateStyle}>{neg.date}</span>
+                  </div>
+
+                  <div style={orderDetailsStyle}>
+                    <div style={detailRowStyle}>
+                      <span style={labelStyle}>Material:</span>
+                      <span style={valueStyle}>{neg.material}</span>
+                    </div>
+                    <div style={detailRowStyle}>
+                      <span style={labelStyle}>Quantity:</span>
+                      <span style={valueStyle}>
+                        {neg.quantity} {neg.unit}
+                      </span>
+                    </div>
+                    <div style={detailRowStyle}>
+                      <span style={labelStyle}>Buyer:</span>
+                      <span style={valueStyle}>{neg.buyer}</span>
+                    </div>
+                  </div>
+
+                  <div style={priceComparisonStyle}>
+                    <div style={priceBoxStyle}>
+                      <span style={priceLabel}>Your Price</span>
+                      <span style={listedPriceStyle}>₹{neg.listedPrice}</span>
+                    </div>
+                    <span style={arrowStyle}>→</span>
+                    <div style={priceBoxStyle}>
+                      <span style={priceLabel}>Offer</span>
+                      <span style={offeredPriceStyle}>₹{neg.offeredPrice}</span>
+                    </div>
+                  </div>
+
+                  <div style={actionButtonsStyle}>
+                    <motion.button
+                      onClick={() => handleReject(neg.id)}
+                      style={rejectButtonStyle}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <XCircle size={16} style={{ marginRight: "6px" }} />
+                      Reject
+                    </motion.button>
+                    <motion.button
+                      onClick={() => handleAccept(neg.id)}
+                      style={acceptButtonStyle}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <CheckCircle size={16} style={{ marginRight: "6px" }} />
+                      Accept
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </main>
+    </div>
+  );
 }
+
+// ============ Styles ============
+
+const containerStyle = {
+  display: "flex",
+  minHeight: "calc(100vh - 80px)",
+  backgroundColor: "#1a1a1a",
+};
+
+const sidebarStyle = {
+  width: "280px",
+  backgroundColor: "#242424",
+  borderRight: "1px solid #3a3a3a",
+  padding: "32px 20px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "32px",
+};
+
+const sidebarHeaderStyle = {
+  borderBottom: "2px solid #f39c12",
+  paddingBottom: "20px",
+};
+
+const sidebarTitleStyle = {
+  fontSize: "24px",
+  fontWeight: "700",
+  color: "#f39c12",
+  margin: "0 0 8px 0",
+};
+
+const userNameStyle = {
+  fontSize: "14px",
+  color: "#aaa",
+  margin: 0,
+};
+
+const navStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+};
+
+const navButtonStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  padding: "14px 20px",
+  backgroundColor: "transparent",
+  borderTopWidth: "0px",
+  borderRightWidth: "0px",
+  borderBottomWidth: "0px",
+  borderLeftWidth: "0px",
+  borderStyle: "solid",
+  borderTopColor: "transparent",
+  borderRightColor: "transparent",
+  borderBottomColor: "transparent",
+  borderLeftColor: "transparent",
+  borderRadius: "8px",
+  color: "#ccc",
+  fontSize: "16px",
+  fontWeight: "600",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  textAlign: "left",
+};
+
+const activeNavButtonStyle = {
+  backgroundColor: "rgba(243, 156, 18, 0.15)",
+  color: "#f39c12",
+  borderLeftWidth: "4px",
+  borderLeftColor: "#f39c12",
+};
+
+const iconStyle = {
+  fontSize: "20px",
+};
+
+const mainContentStyle = {
+  flex: 1,
+  padding: "40px",
+  overflowY: "auto",
+};
+
+const pageHeaderStyle = {
+  fontSize: "clamp(28px, 4vw, 36px)",
+  fontWeight: "700",
+  color: "#f39c12",
+  margin: "0 0 12px 0",
+};
+
+const pageDescStyle = {
+  fontSize: "16px",
+  color: "#aaa",
+  marginBottom: "32px",
+};
+
+const cardsContainerStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+  gap: "24px",
+};
+
+const orderCardStyle = {
+  backgroundColor: "#242424",
+  border: "1px solid #3a3a3a",
+  borderRadius: "12px",
+  padding: "24px",
+  transition: "all 0.3s ease",
+};
+
+const negotiationCardStyle = {
+  backgroundColor: "#242424",
+  border: "1px solid #3a3a3a",
+  borderRadius: "12px",
+  padding: "24px",
+  transition: "all 0.3s ease",
+};
+
+const cardHeaderStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "20px",
+  paddingBottom: "16px",
+  borderBottom: "1px solid #3a3a3a",
+};
+
+const orderIdStyle = {
+  fontSize: "18px",
+  fontWeight: "700",
+  color: "#f39c12",
+  margin: 0,
+};
+
+const statusBadgeStyle = {
+  padding: "6px 12px",
+  backgroundColor: "rgba(46, 204, 113, 0.2)",
+  color: "#2ecc71",
+  borderRadius: "20px",
+  fontSize: "12px",
+  fontWeight: "600",
+  textTransform: "capitalize",
+};
+
+const dateStyle = {
+  fontSize: "13px",
+  color: "#888",
+};
+
+const orderDetailsStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+  marginBottom: "20px",
+};
+
+const detailRowStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const labelStyle = {
+  fontSize: "14px",
+  color: "#aaa",
+};
+
+const valueStyle = {
+  fontSize: "15px",
+  color: "#fff",
+  fontWeight: "600",
+};
+
+const totalRowStyle = {
+  paddingTop: "12px",
+  borderTop: "1px solid #3a3a3a",
+  marginTop: "8px",
+};
+
+const totalValueStyle = {
+  fontSize: "18px",
+  color: "#f39c12",
+  fontWeight: "700",
+};
+
+const priceComparisonStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "16px",
+  backgroundColor: "#1a1a1a",
+  borderRadius: "8px",
+  marginBottom: "20px",
+};
+
+const priceBoxStyle = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "8px",
+};
+
+const priceLabel = {
+  fontSize: "12px",
+  color: "#888",
+  textTransform: "uppercase",
+};
+
+const listedPriceStyle = {
+  fontSize: "20px",
+  color: "#ccc",
+  fontWeight: "700",
+};
+
+const offeredPriceStyle = {
+  fontSize: "20px",
+  color: "#f39c12",
+  fontWeight: "700",
+};
+
+const arrowStyle = {
+  fontSize: "24px",
+  color: "#666",
+};
+
+const actionButtonsStyle = {
+  display: "flex",
+  gap: "12px",
+};
+
+const cancelButtonStyle = {
+  flex: 1,
+  padding: "12px",
+  backgroundColor: "#e74c3c",
+  color: "#fff",
+  border: "none",
+  borderRadius: "8px",
+  fontSize: "14px",
+  fontWeight: "700",
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const shippedButtonStyle = {
+  flex: 1,
+  padding: "12px",
+  backgroundColor: "#2ecc71",
+  color: "#fff",
+  border: "none",
+  borderRadius: "8px",
+  fontSize: "14px",
+  fontWeight: "700",
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const rejectButtonStyle = {
+  flex: 1,
+  padding: "12px",
+  backgroundColor: "#e74c3c",
+  color: "#fff",
+  border: "none",
+  borderRadius: "8px",
+  fontSize: "14px",
+  fontWeight: "700",
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const acceptButtonStyle = {
+  flex: 1,
+  padding: "12px",
+  backgroundColor: "#2ecc71",
+  color: "#fff",
+  border: "none",
+  borderRadius: "8px",
+  fontSize: "14px",
+  fontWeight: "700",
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};

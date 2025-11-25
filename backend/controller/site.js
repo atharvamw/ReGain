@@ -18,7 +18,30 @@ export async function handleGetNearbySites(req, res){
 
     try
     {
-        res.json(await getNearestSites(req.body.userCords))
+        /*
+            JSON Body format:
+            {
+                radius: num
+                userCords: [lat, lng]
+            }
+        */
+        
+            if(req.cookies?.token)
+            {
+                const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+
+                if(token)
+                { 
+                    const radius = req.body.radius || 15
+                    
+                    res.json(await getNearestSites(req.body.userCords, radius))
+                }
+                else
+                {
+                    res.json({status: "failed", message: "Not Authenticated"})
+                }
+            }
+
     }
     catch(error)
     {
@@ -35,7 +58,7 @@ export async function handleRegisterSite(req, res){
         name: "String",
         phone: "String",
         isActive: true/false,
-        materials: {"bricks": 10, "wood_planks: 10"},
+        materials: {"bricks": {"price": 100, "stock": 20}, "wood_planks: {"price": 100, "stock": 20}"},
         location: {type: "Point", coordinates: [lat, lng]}
     }
     */
@@ -172,19 +195,12 @@ export async function handleAddMySite(req, res)
 {
     try
     {
-        if(!req.body?.id)
-        {
-            res.json({status: "failed", message: "Please Provide Site Id as id"});
-        }
-        
-        
         if(req.cookies?.token)
         {
             const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
             
             if(token)
             {
-                const id = req.body.id;
                 const name = req.body.name;
                 const phone = req.body.phone;
                 const isActive = req.body.isActive;
@@ -220,7 +236,7 @@ export async function handleAddMySite(req, res)
                 
                 const addData = {name, email: token.email, phone, isActive, materials, location}
 
-                /* Not Necessary all of them just any one or more.
+                /* Necessary all of them just any one or more.
                     {
                         name: String,
                         phone: String,

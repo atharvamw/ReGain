@@ -1,11 +1,11 @@
 import mongoose from 'mongoose'
 
 const loginSchema = mongoose.Schema({
-    email: {type: String, required: true},
+    email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     firstName: {type: String, required: true},
     lastName: {type: String, required: true},
-    phoneNo: {type: String, required: true, match: /[0-9]{10}$/},
+    phone: {type: String, required: true, match: /[0-9]{10}$/},
     adharNo: {type: String}
 }, {collection: "credentials"})
 
@@ -63,25 +63,21 @@ export async function checkUserExistance(email)
     }
 }
 
-export async function addUser(email, password, firstName, lastName)
+export async function addUser(email, password, firstName, lastName, phone)
 {
     try
     {   
-        const doc = await checkUserExistance(email)
-        if(!doc.exists)
-        {
-            const res = await Login.create({email, password, firstName, lastName, phoneNo})
-            return {status: "success", data: res};
-        }
-        else
-        {
-            return {status: "failed", message: "User Already exists!"};
-        }
-        
+        const res = await Login.create({email, password, firstName, lastName, phone})
+        return {status: "success", data: res};
     }
     catch(error)
     {
-        return {status: "error", message: error};
+        if(error.message.includes("duplicate key"))
+        {
+            return {status: "error", message: "User Already Exists! (Duplicate Email)"};
+        }
+        
+        return {status: "error", message: error.toString()};
     }
 }
 
