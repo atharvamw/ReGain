@@ -174,7 +174,8 @@ export default function MySites() {
       console.log("Backend response:", result);
 
       if (result.status === "success") {
-        setSites([...sites, result.data]);
+        // Immediately update the sites state with the new site
+        setSites(prevSites => [...prevSites, result.data]);
         setAddFeedback("success");
         setTimeout(() => {
           setIsAddingNewSite(false);
@@ -190,8 +191,7 @@ export default function MySites() {
         }, 1500);
       } else {
         setAddFeedback("error");
-        // Show the actual backend error message
-        alert(`Backend Error: ${result.message || "Registration failed"}\n\nDetails: ${JSON.stringify(result, null, 2)}`);
+        alert(`Backend Error: ${result.message || "Registration failed"}`);
         console.error("Backend validation failed:", result);
       }
     } catch (error) {

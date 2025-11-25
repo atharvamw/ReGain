@@ -237,7 +237,8 @@ const ctaContainerStyle = {
     display: "flex",
     gap: "20px",
     justifyContent: "center",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    width: "100%",
 };
 
 const primaryButtonStyle = {
@@ -254,6 +255,8 @@ const primaryButtonStyle = {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
+    whiteSpace: "nowrap",
+    minWidth: "fit-content",
 };
 
 const secondaryButtonStyle = {
@@ -269,6 +272,8 @@ const secondaryButtonStyle = {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
+    whiteSpace: "nowrap",
+    minWidth: "fit-content",
 };
 
 const floatingElement1 = {
@@ -322,12 +327,18 @@ const cardStyle = {
     border: "2px solid #3a3a3a",
     textAlign: "center",
     transition: "all 0.3s ease",
-    cursor: "pointer"
+    cursor: "pointer",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
 };
 
 const cardIconStyle = {
     fontSize: "64px",
-    marginBottom: "24px"
+    marginBottom: "24px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
 };
 
 const cardTitleStyle = {
@@ -361,5 +372,5 @@ const benefitCardStyle = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "flex-start"
+    justifyContent: "center",
 };

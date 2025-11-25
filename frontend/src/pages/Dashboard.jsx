@@ -326,19 +326,23 @@ export default function Dashboard() {
 
 const containerStyle = {
   display: "flex",
+  flexDirection: window.innerWidth <= 768 ? "column" : "row",
   minHeight: "calc(100vh - 80px)",
   backgroundColor: "#1a1a1a",
 };
 
 const sidebarStyle = {
-  width: "280px",
+  width: window.innerWidth <= 768 ? "100%" : "280px",
   backgroundColor: "#242424",
-  borderRight: "1px solid #3a3a3a",
-  padding: "32px 20px",
+  borderRight: window.innerWidth <= 768 ? "none" : "1px solid #3a3a3a",
+  borderBottom: window.innerWidth <= 768 ? "1px solid #3a3a3a" : "none",
+  padding: window.innerWidth <= 768 ? "20px" : "32px 20px",
   display: "flex",
-  flexDirection: "column",
-  gap: "32px",
+  flexDirection: window.innerWidth <= 768 ? "row" : "column",
+  gap: window.innerWidth <= 768 ? "16px" : "32px",
   justifyContent: "space-between",
+  alignItems: window.innerWidth <= 768 ? "center" : "stretch",
+  flexWrap: window.innerWidth <= 768 ? "wrap" : "nowrap",
 };
 
 const sidebarHeaderStyle = {
@@ -361,8 +365,9 @@ const userNameStyle = {
 
 const navStyle = {
   display: "flex",
-  flexDirection: "column",
+  flexDirection: window.innerWidth <= 768 ? "row" : "column",
   gap: "12px",
+  flex: window.innerWidth <= 768 ? "1" : "auto",
 };
 
 const navButtonStyle = {
@@ -402,7 +407,7 @@ const iconStyle = {
 
 const mainContentStyle = {
   flex: 1,
-  padding: "40px",
+  padding: window.innerWidth <= 768 ? "20px" : "40px",
   overflowY: "auto",
 };
 
@@ -421,7 +426,9 @@ const pageDescStyle = {
 
 const cardsContainerStyle = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+  gridTemplateColumns: window.innerWidth <= 768 
+    ? "1fr" 
+    : "repeat(auto-fill, minmax(380px, 1fr))",
   gap: "24px",
 };
 
@@ -630,5 +637,6 @@ const logoutButtonStyle = {
   fontWeight: "600",
   cursor: "pointer",
   transition: "all 0.3s ease",
-  marginTop: "auto",
+  marginTop: window.innerWidth <= 768 ? "0" : "auto",
+  whiteSpace: "nowrap",
 };
