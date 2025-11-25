@@ -2,17 +2,18 @@ import { Mail, Lock, ArrowRight } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/Auth";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useEffect } from "react";
 
 export default function Login() {
   const Auth = useContext(AuthContext);
   const navigate = useNavigate();
   const shouldReduceMotion = useReducedMotion();
 
-  // Redirect if already logged in
-  if (Auth.userAuth.firstName) {
-    navigate("/dashboard");
-  }
+  useEffect(() => {
+    if (Auth.userAuth.firstName) {
+      navigate("/dashboard");
+    }
+  }, [Auth.userAuth.firstName, navigate]);
 
   // Animation variants - memoized for performance
   const containerVariants = useMemo(() => ({

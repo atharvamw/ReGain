@@ -1,10 +1,13 @@
 import { Mail, Lock, User, ArrowRight, Building2, Phone } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
 
 export default function Register() {
   const shouldReduceMotion = useReducedMotion();
+  const navigate = useNavigate();
+  const [feedback, setFeedback] = useState({ type: "", message: "" });
+  const [isLoading, setIsLoading] = useState(false);
 
   // Animation variants - memoized for performance
   const containerVariants = useMemo(() => ({
@@ -26,6 +29,83 @@ export default function Register() {
       transition: { duration: shouldReduceMotion ? 0.2 : 0.4, ease: "easeOut" },
     },
   }), [shouldReduceMotion]);
+
+  // Handle registration form submission
+  async function handleRegister(e) {
+    e.preventDefault();
+    setFeedback({ type: "", message: "" });
+    setIsLoading(true);
+
+    const formData = new FormData(e.target);
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const confirmPassword = formData.get("confirmPassword");
+    const fullname = formData.get("fullname");
+    const phone = formData.get("phone");
+
+    // Basic validation
+    if (password !== confirmPassword) {
+      setFeedback({ type: "error", message: "Passwords do not match!" });
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setFeedback({ type: "error", message: "Password must be at least 6 characters long!" });
+      setIsLoading(false);
+      return;
+    }
+
+    // Split fullname into firstName and lastName
+    const nameParts = fullname.trim().split(" ");
+    const firstName = nameParts[0] || "";
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    if (!firstName) {
+      setFeedback({ type: "error", message: "Please enter your full name!" });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("https://api.regain.pp.ua/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
+          phone
+        })
+      });
+
+      const result = await response.json();
+      console.log("Registration result:", result);
+
+      if (result.status === "success") {
+        setFeedback({ type: "success", message: "Account created successfully! Redirecting to login..." });
+        
+        // Use setTimeout to ensure the message is visible before redirect
+        setTimeout(() => {
+          navigate("/login", { replace: true });
+        }, 2000);
+      } else if (result.status === "error") {
+        setFeedback({ type: "error", message: result.message || "Registration failed!" });
+        setIsLoading(false);
+      } else {
+        setFeedback({ type: "error", message: "An unexpected error occurred!" });
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      setFeedback({ type: "error", message: "Network error. Please try again!" });
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] via-[#2c2c2c] to-[#1a1a1a] py-16 px-5 relative overflow-hidden">
@@ -73,10 +153,25 @@ export default function Register() {
           <p className="text-base text-[#aaa]">Create your account to get started</p>
         </motion.div>
 
+        {/* Feedback Message */}
+        {feedback.message && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`mb-6 p-4 rounded-xl text-sm font-semibold ${
+              feedback.type === "success"
+                ? "bg-[rgba(46,204,113,0.2)] text-[#2ecc71] border border-[#2ecc71]"
+                : "bg-[rgba(231,76,60,0.2)] text-[#e74c3c] border border-[#e74c3c]"
+            }`}
+          >
+            {feedback.message}
+          </motion.div>
+        )}
+
         {/* Register Form */}
         <motion.form
           variants={containerVariants}
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleRegister}
           className="flex flex-col gap-5"
         >
           {/* Full Name */}
@@ -100,7 +195,7 @@ export default function Register() {
           {/* Company Name */}
           <motion.div variants={itemVariants} className="flex flex-col gap-2">
             <label htmlFor="company" className="text-sm font-semibold text-[#ccc]">
-              Company Name
+              Company Name <span className="text-[#666]">(Optional)</span>
             </label>
             <div className="relative flex items-center">
               <Building2 className="absolute left-4 text-[#888] pointer-events-none" size={20} />
@@ -109,7 +204,6 @@ export default function Register() {
                 id="company"
                 name="company"
                 placeholder="Your Construction Co."
-                required
                 className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
               />
             </div>
@@ -164,6 +258,7 @@ export default function Register() {
                 name="password"
                 placeholder="••••••••"
                 required
+                minLength={6}
                 className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
               />
             </div>
@@ -182,6 +277,7 @@ export default function Register() {
                 name="confirmPassword"
                 placeholder="••••••••"
                 required
+                minLength={6}
                 className="w-full py-3.5 px-4 pl-12 text-sm bg-[rgba(42,42,42,0.6)] border border-[#3a3a3a] rounded-xl text-white outline-none transition-all duration-300 focus:border-[#f39c12]"
               />
             </div>
@@ -208,12 +304,22 @@ export default function Register() {
           <motion.button
             variants={itemVariants}
             type="submit"
-            className="w-full py-4 mt-2 text-base font-bold bg-gradient-to-r from-[#f39c12] to-[#e67e22] text-[#1a1a1a] border-none rounded-xl cursor-pointer flex items-center justify-center transition-all duration-300 shadow-[0_8px_24px_rgba(243,156,18,0.3)]"
-            whileHover={shouldReduceMotion ? {} : { scale: 1.02, boxShadow: "0 10px 40px rgba(243, 156, 18, 0.4)" }}
-            whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}
+            disabled={isLoading}
+            className="w-full py-4 mt-2 text-base font-bold bg-gradient-to-r from-[#f39c12] to-[#e67e22] text-[#1a1a1a] border-none rounded-xl cursor-pointer flex items-center justify-center transition-all duration-300 shadow-[0_8px_24px_rgba(243,156,18,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+            whileHover={shouldReduceMotion || isLoading ? {} : { scale: 1.02, boxShadow: "0 10px 40px rgba(243, 156, 18, 0.4)" }}
+            whileTap={shouldReduceMotion || isLoading ? {} : { scale: 0.98 }}
           >
-            <span>Create Account</span>
-            <ArrowRight size={20} className="ml-2" />
+            {isLoading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-[#1a1a1a] border-t-transparent rounded-full animate-spin mr-2"></div>
+                Creating Account...
+              </>
+            ) : (
+              <>
+                <span>Create Account</span>
+                <ArrowRight size={20} className="ml-2" />
+              </>
+            )}
           </motion.button>
 
           {/* Sign In Link */}

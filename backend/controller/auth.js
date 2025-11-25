@@ -22,7 +22,7 @@ export async function handleRegister(req, res)
 
         const hashedPassword = await bcrypt.hash(data.password, saltRounds);
         
-        const result = await addUser(data.email, hashedPassword, data.firstName, data.lastName);
+        const result = await addUser(data.email, hashedPassword, data.firstName, data.lastName, data.phone);
         
         res.json(result);
     }

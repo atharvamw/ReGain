@@ -5,7 +5,13 @@ const siteSchema = mongoose.Schema({
     email: {type: String, required: true},
     phone: {type: String, required: true},
     isActive: {type: Boolean, default: true},
-    materials: {type: Object},
+    materials: {
+        type: Map,
+        of: new mongoose.Schema({
+          price: { type: Number, required: true },
+          stock: { type: Number, required: true }
+        }, { _id: false }) 
+      },
     location: {
         type: {type: String, enum: ["Point"], required: true},
         coordinates: {type: [Number], required: true}
@@ -29,7 +35,7 @@ export async function getSites()
     }
 }
 
-export async function getNearestSites(userCords)
+export async function getNearestSites(userCords, radiusKm)
 {
     try
     {
@@ -40,7 +46,7 @@ export async function getNearestSites(userCords)
                         type: "Point",
                         coordinates: userCords 
                     },
-                    $maxDistance: 15000
+                    $maxDistance: radiusKm*1000
                 },
             }
         }).limit(20)
@@ -119,9 +125,9 @@ export async function addMySite(email, addObj)
 {
     try
     {
-        if(Site.findOne({email, name: addObj.name}))
+        if(await Site.findOne({email, name: addObj.name}))
         {
-            return {status: "failed", data: "Already Exists"};
+            return {status: "failed", data: addObj.name + " Already Exists!"};
         }
         
         const data = await Site.create(addObj)

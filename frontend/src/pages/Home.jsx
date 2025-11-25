@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
+import { Rocket, Map, MapPin, Handshake, Recycle, DollarSign, Leaf, Zap, Lock, Search as SearchIcon } from "lucide-react";
 
 export default function Home() {
     const shouldReduceMotion = useReducedMotion();
@@ -75,16 +76,18 @@ export default function Home() {
                                 whileHover={{ scale: 1.05, boxShadow: "0 10px 40px rgba(243, 156, 18, 0.5)" }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                🚀 Get Started
+                                <Rocket size={20} style={{ marginRight: "8px" }} />
+                                Get Started
                             </motion.button>
                         </Link>
-                        <Link to="/map" style={{ textDecoration: "none" }}>
+                        <Link to="/search" style={{ textDecoration: "none" }}>
                             <motion.button
                                 style={secondaryButtonStyle}
                                 whileHover={{ scale: 1.05, backgroundColor: "#2a2a2a" }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                🗺️ Explore Map
+                                <SearchIcon size={20} style={{ marginRight: "8px" }} />
+                                Search Materials
                             </motion.button>
                         </Link>
                     </motion.div>
@@ -116,13 +119,13 @@ export default function Home() {
                 style={sectionStyle}
             >
                 <motion.h2 style={sectionTitleStyle} {...fadeInUp}>
-                    ⚙️ How It Works
+                    How It Works
                 </motion.h2>
                 <div style={cardsContainerStyle}>
                     {[
-                        { icon: "📍", title: "Locate", desc: "Find construction sites near you with excess materials" },
-                        { icon: "🤝", title: "Connect", desc: "Direct communication with site managers for transactions" },
-                        { icon: "♻️", title: "Reuse", desc: "Save costs and reduce environmental waste together" }
+                        { Icon: MapPin, title: "Locate", desc: "Find construction sites near you with excess materials" },
+                        { Icon: Handshake, title: "Connect", desc: "Direct communication with site managers for transactions" },
+                        { Icon: Recycle, title: "Reuse", desc: "Save costs and reduce environmental waste together" }
                     ].map((item, i) => (
                         <motion.div
                             key={i}
@@ -134,7 +137,9 @@ export default function Home() {
                                 borderColor: "#f39c12"
                             }}
                         >
-                            <div style={cardIconStyle}>{item.icon}</div>
+                            <div style={cardIconStyle}>
+                                <item.Icon size={64} color="#f39c12" />
+                            </div>
                             <h3 style={cardTitleStyle}>{item.title}</h3>
                             <p style={cardDescStyle}>{item.desc}</p>
                         </motion.div>
@@ -150,17 +155,17 @@ export default function Home() {
                 style={{ ...sectionStyle, backgroundColor: "#1a1a1a" }}
             >
                 <motion.h2 style={sectionTitleStyle} variants={fadeIn}>
-                    💎 Why Choose ReGain?
+                    Why Choose ReGain?
                 </motion.h2>
                 <motion.div 
                     style={benefitsGridStyle}
                     variants={staggerContainer}
                 >
                     {[
-                        { icon: "💰", title: "Cost Savings", desc: "Save up to 40% on material costs" },
-                        { icon: "🌍", title: "Eco-Friendly", desc: "Reduce construction waste significantly" },
-                        { icon: "⚡", title: "Quick Access", desc: "Find materials instantly nearby" },
-                        { icon: "🔒", title: "Secure Deals", desc: "Verified listings and safe transactions" }
+                        { Icon: DollarSign, title: "Cost Savings", desc: "Save up to 40% on material costs" },
+                        { Icon: Leaf, title: "Eco-Friendly", desc: "Reduce construction waste significantly" },
+                        { Icon: Zap, title: "Quick Access", desc: "Find materials instantly nearby" },
+                        { Icon: Lock, title: "Secure Deals", desc: "Verified listings and safe transactions" }
                     ].map((benefit, i) => (
                         <motion.div
                             key={i}
@@ -171,7 +176,7 @@ export default function Home() {
                                 boxShadow: "0 10px 30px rgba(243, 156, 18, 0.2)"
                             }}
                         >
-                            <span style={{ fontSize: "48px", marginBottom: "16px", display: "block" }}>{benefit.icon}</span>
+                            <benefit.Icon size={48} color="#f39c12" style={{ marginBottom: "16px" }} />
                             <h4 style={{ color: "#f39c12", fontSize: "20px", marginBottom: "8px", margin: 0 }}>{benefit.title}</h4>
                             <p style={{ color: "#aaa", fontSize: "14px", lineHeight: "1.6", margin: 0 }}>{benefit.desc}</p>
                         </motion.div>
@@ -245,7 +250,10 @@ const primaryButtonStyle = {
     borderRadius: "50px",
     cursor: "pointer",
     boxShadow: "0 8px 30px rgba(243, 156, 18, 0.4)",
-    transition: "all 0.3s ease"
+    transition: "all 0.3s ease",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
 };
 
 const secondaryButtonStyle = {
@@ -257,7 +265,10 @@ const secondaryButtonStyle = {
     border: "2px solid #f39c12",
     borderRadius: "50px",
     cursor: "pointer",
-    transition: "all 0.3s ease"
+    transition: "all 0.3s ease",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
 };
 
 const floatingElement1 = {

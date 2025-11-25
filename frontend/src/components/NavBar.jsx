@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/Auth";
+import { Hammer } from "lucide-react";
 
 export default function Navbar() {
   const location = useLocation();
@@ -28,7 +29,7 @@ export default function Navbar() {
       setNavLinks([
         { path: "/home", label: "Home" },
         { path: "/graph", label: "Graph Mode" },
-        { path: "/map", label: "Map Mode" },
+        { path: "/search", label: "Search" },
         { path: "/mysites", label: "My Sites" },
         { path: "/dashboard", label: "Dashboard" },
       ]);
@@ -61,7 +62,7 @@ export default function Navbar() {
               transition={{ duration: 0.3 }}
               style={{ display: "inline-block" }}
             >
-              🧱
+              <Hammer size={28} style={{ color: "#f39c12" }} />
             </motion.span>
             <span style={logoTextStyle}>ReGain</span>
           </motion.div>
@@ -202,9 +203,6 @@ const desktopNavStyle = {
   display: "flex",
   gap: "8px",
   alignItems: "center",
-  "@media (max-width: 768px)": {
-    display: "none",
-  },
 };
 
 const navLinkStyle = {
@@ -239,9 +237,6 @@ const mobileMenuButtonStyle = {
   color: "#f39c12",
   cursor: "pointer",
   padding: "8px",
-  "@media (max-width: 768px)": {
-    display: "block",
-  },
 };
 
 const mobileMenuStyle = {
@@ -279,5 +274,9 @@ if (typeof window !== "undefined") {
             }
         }
     `;
-  document.head.appendChild(style);
+  // Check if style already exists to avoid duplicates
+  if (!document.getElementById("navbar-media-queries")) {
+    style.id = "navbar-media-queries";
+    document.head.appendChild(style);
+  }
 }
