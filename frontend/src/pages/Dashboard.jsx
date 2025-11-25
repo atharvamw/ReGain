@@ -1,10 +1,12 @@
 import { AuthContext } from "../context/Auth";
 import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Package, MessageSquare, User, X, CheckCircle, XCircle, TrendingUp } from "lucide-react";
+import { Package, MessageSquare, User, X, CheckCircle, XCircle, TrendingUp, LogOut } from "lucide-react";
 
 export default function Dashboard() {
   const Auth = useContext(AuthContext);
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("orders");
 
   // Mock data for orders
@@ -73,6 +75,29 @@ export default function Dashboard() {
     alert(`Negotiation ${negId} accepted`);
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("https://api.regain.pp.ua/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      
+      const result = await response.json();
+      
+      if (result.status === "success") {
+        // Clear auth context
+        Auth.userAuth = {};
+        // Redirect to home
+        navigate("/home");
+      } else {
+        alert("Logout failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Network error. Please try again.");
+    }
+  };
+
   return (
     <div style={containerStyle}>
       {/* Sidebar */}
@@ -120,6 +145,17 @@ export default function Dashboard() {
             <span>Negotiations</span>
           </motion.button>
         </nav>
+
+        {/* Logout Button */}
+        <motion.button
+          onClick={handleLogout}
+          style={logoutButtonStyle}
+          whileHover={{ x: 5, backgroundColor: "#c0392b" }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <LogOut size={20} />
+          <span>Logout</span>
+        </motion.button>
       </motion.aside>
 
       {/* Main Content */}
@@ -302,6 +338,7 @@ const sidebarStyle = {
   display: "flex",
   flexDirection: "column",
   gap: "32px",
+  justifyContent: "space-between",
 };
 
 const sidebarHeaderStyle = {
@@ -578,4 +615,20 @@ const acceptButtonStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+};
+
+const logoutButtonStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  padding: "14px 20px",
+  backgroundColor: "#e74c3c",
+  border: "none",
+  borderRadius: "8px",
+  color: "#fff",
+  fontSize: "16px",
+  fontWeight: "600",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  marginTop: "auto",
 };

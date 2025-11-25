@@ -116,6 +116,31 @@ export default function MySites() {
   const handleAddNewSite = async () => {
     setAddFeedback("");
     
+    // Client-side validation
+    if (!newSiteForm.name || newSiteForm.name.trim().length < 6) {
+      setAddFeedback("error");
+      alert("Site name must be at least 6 characters long!");
+      return;
+    }
+    
+    if (!newSiteForm.phone || newSiteForm.phone.trim().length === 0) {
+      setAddFeedback("error");
+      alert("Please enter a phone number!");
+      return;
+    }
+    
+    if (newSiteForm.location.coordinates[0] === 0 && newSiteForm.location.coordinates[1] === 0) {
+      setAddFeedback("error");
+      alert("Please set your location by clicking 'Get Current Location' button!");
+      return;
+    }
+    
+    if (customMaterials.length === 0) {
+      setAddFeedback("error");
+      alert("Please add at least one material!");
+      return;
+    }
+    
     const materialsMap = {};
     customMaterials.forEach(mat => {
       if (mat.name.trim()) {
@@ -127,21 +152,26 @@ export default function MySites() {
       }
     });
     
+    const payload = {
+      name: newSiteForm.name,
+      phone: newSiteForm.phone,
+      isActive: newSiteForm.isActive,
+      materials: materialsMap,
+      location: newSiteForm.location,
+    };
+    
+    console.log("Sending payload:", JSON.stringify(payload, null, 2));
+    
     try {
-      const response = await fetch("https://api.regain.pp.ua/registerSite", {
+      const response = await fetch("https://api.regain.pp.ua/addMySite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          name: newSiteForm.name,
-          phone: newSiteForm.phone,
-          isActive: newSiteForm.isActive,
-          materials: materialsMap,
-          location: newSiteForm.location,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
+      console.log("Backend response:", result);
 
       if (result.status === "success") {
         setSites([...sites, result.data]);
@@ -160,10 +190,14 @@ export default function MySites() {
         }, 1500);
       } else {
         setAddFeedback("error");
+        // Show the actual backend error message
+        alert(`Backend Error: ${result.message || "Registration failed"}\n\nDetails: ${JSON.stringify(result, null, 2)}`);
+        console.error("Backend validation failed:", result);
       }
     } catch (error) {
       console.error("Failed to add site:", error);
       setAddFeedback("error");
+      alert(`Network error: ${error.message}`);
     }
   };
 

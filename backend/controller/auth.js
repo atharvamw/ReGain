@@ -113,3 +113,16 @@ export async function handleAuth(req, res)
         res.json({"authentication": "failed", "message":"please login first"});
     }
 }
+
+export async function handleLogout(req, res)
+{
+    try
+    {
+        res.clearCookie("token");
+        res.json({status: "success", message: "Logout successful!"});
+    }
+    catch(error)
+    {
+        res.json({status: "error", message: error.toString()});
+    }
+}
