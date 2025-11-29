@@ -121,36 +121,17 @@ export async function updateMySite(siteId, email, updateObj)
     }
 }
 
-export async function addMySite(email, addObj)
+export async function addMySite(email, addObj) 
 {
     try
     {
-        if(await Site.findOne({email, name: addObj.name}))
-        {
-            return {status: "failed", data: addObj.name + " Already Exists!"};
-        }
-        
-        const data = await Site.create(addObj)
-
-        if(data)
-        {
-            return {status: "success", data: data};
-        }
-        else
-        {
-            return {status: "failed", message: "Invalid ID"};
-        }
+        const newSite = await Site.create(addObj);
+        return {status: "success", data: newSite, message: "Site added successfully"};
     }
     catch(err)
     {
-        if(err.name == "CastError")
-        {
-            return {status: "error", message: "Invalid ID"};
-        }
-        else
-        {
-            return {status: "error", message: err.toString()};
-        }
+        console.error("Database error in addMySite:", err);
+        return {status: "failed", message: "Failed to add site: " + err.message}
     }
 }
 

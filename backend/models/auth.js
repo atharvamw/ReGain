@@ -111,8 +111,8 @@ export async function getName(email)
     {
         const creds = await Login.findOne({email});
 
-        if(creds?.firstName)
-            return {status: "success", firstName: creds.firstName, lastName: creds.lastName, message: "Success!"}
+        if(creds)
+            return {status: "success", firstName: creds.firstName, lastName: creds.lastName, phone: creds.phone, message: "Success!"}
         else
             return {status: "failed", password: null, message: "User doesnt exist!"}
     }
