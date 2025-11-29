@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Search as SearchIcon,
@@ -71,6 +71,11 @@ export default function Search() {
   const [radius, setRadius] = useState(10);
   const [selectedSite, setSelectedSite] = useState(null);
 
+  // Automatically get user location on component mount
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
   const handleSearchQueryChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
@@ -136,9 +141,11 @@ export default function Search() {
         },
         (error) => {
           console.error("Location error:", error);
-          alert(
-            "Unable to get your location. Please enable location services."
-          );
+          // Only show alert if user actively denies or there's an error
+          // Don't show alert on initial page load
+          if (error.code === error.PERMISSION_DENIED) {
+            console.log("Location permission denied");
+          }
         }
       );
     }
@@ -434,4 +441,293 @@ export default function Search() {
   );
 }
 
-// ...existing code (all the style definitions)...
+// Styles
+const containerStyle = {
+  minHeight: "calc(100vh - 80px)",
+  backgroundColor: "#1a1a1a",
+  padding: "40px 20px",
+};
+
+const contentStyle = {
+  maxWidth: "1400px",
+  margin: "0 auto",
+};
+
+const heroSectionStyle = {
+  textAlign: "center",
+  marginBottom: "40px",
+};
+
+const titleStyle = {
+  fontSize: "clamp(32px, 5vw, 48px)",
+  fontWeight: "800",
+  color: "#fff",
+  marginBottom: "16px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const subtitleStyle = {
+  fontSize: "clamp(16px, 2vw, 20px)",
+  color: "#aaa",
+  marginBottom: "40px",
+};
+
+const searchBarContainerStyle = {
+  display: "flex",
+  justifyContent: "center",
+  marginBottom: "20px",
+};
+
+const searchBarStyle = {
+  display: "flex",
+  alignItems: "center",
+  backgroundColor: "#242424",
+  border: "2px solid #3a3a3a",
+  borderRadius: "50px",
+  padding: "8px 8px 8px 24px",
+  maxWidth: "900px",
+  width: "100%",
+  transition: "all 0.3s ease",
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+  gap: "12px",
+};
+
+const searchIconStyle = {
+  color: "#888",
+  marginRight: "12px",
+};
+
+const searchInputStyle = {
+  flex: 1,
+  backgroundColor: "transparent",
+  border: "none",
+  outline: "none",
+  color: "#fff",
+  fontSize: "16px",
+  padding: "12px 0",
+};
+
+const radiusInputContainer = {
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+  backgroundColor: "#1a1a1a",
+  padding: "8px 12px",
+  borderRadius: "20px",
+};
+
+const radiusInputStyle = {
+  width: "50px",
+  backgroundColor: "transparent",
+  border: "none",
+  outline: "none",
+  color: "#fff",
+  fontSize: "14px",
+  textAlign: "center",
+};
+
+const radiusLabelStyle = {
+  color: "#888",
+  fontSize: "14px",
+};
+
+const searchButtonStyle = {
+  backgroundColor: "#f39c12",
+  color: "#1a1a1a",
+  border: "none",
+  borderRadius: "50px",
+  padding: "12px 32px",
+  fontSize: "16px",
+  fontWeight: "700",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+};
+
+const locationButtonStyle = {
+  backgroundColor: "#3498db",
+  color: "#fff",
+  border: "none",
+  borderRadius: "50px",
+  padding: "12px 24px",
+  fontSize: "14px",
+  fontWeight: "600",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  display: "inline-flex",
+  alignItems: "center",
+  marginTop: "10px",
+};
+
+const mapContainerStyle = {
+  marginTop: "40px",
+};
+
+const loadingContainerStyle = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "80px 20px",
+};
+
+const resultsHeaderStyle = {
+  fontSize: "24px",
+  color: "#f39c12",
+  marginBottom: "20px",
+  fontWeight: "600",
+  display: "flex",
+  alignItems: "center",
+};
+
+const mapWrapperStyle = {
+  borderRadius: "16px",
+  overflow: "hidden",
+  border: "2px solid #3a3a3a",
+  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3)",
+};
+
+const mapStyle = {
+  height: "600px",
+  width: "100%",
+};
+
+const popupStyle = {
+  padding: "4px",
+};
+
+const popupContentStyle = {
+  padding: "8px",
+  minWidth: "250px",
+};
+
+const popupTitleStyle = {
+  fontSize: "18px",
+  fontWeight: "700",
+  color: "#f39c12",
+  margin: "0 0 12px 0",
+};
+
+const popupDetailsStyle = {
+  marginBottom: "12px",
+};
+
+const popupRowStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
+  color: "#333",
+  fontSize: "13px",
+  marginBottom: "4px",
+};
+
+const popupMaterialsStyle = {
+  marginBottom: "12px",
+};
+
+const popupMaterialsTitleStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
+  color: "#333",
+  fontSize: "14px",
+  fontWeight: "600",
+  marginBottom: "8px",
+};
+
+const popupMaterialsGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, 1fr)",
+  gap: "8px",
+};
+
+const popupMaterialCardStyle = {
+  backgroundColor: "#f8f9fa",
+  padding: "8px",
+  borderRadius: "6px",
+  border: "1px solid #dee2e6",
+};
+
+const popupMaterialNameStyle = {
+  display: "block",
+  color: "#333",
+  fontSize: "12px",
+  fontWeight: "600",
+  marginBottom: "4px",
+  textTransform: "capitalize",
+};
+
+const popupMaterialInfoStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const popupStockStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+  color: "#666",
+  fontSize: "11px",
+};
+
+const popupPriceStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+  color: "#f39c12",
+  fontSize: "11px",
+  fontWeight: "700",
+};
+
+const popupBuyButtonStyle = {
+  width: "100%",
+  padding: "10px",
+  backgroundColor: "#f39c12",
+  color: "#fff",
+  border: "none",
+  borderRadius: "6px",
+  fontSize: "13px",
+  fontWeight: "700",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const noResultsStyle = {
+  textAlign: "center",
+  padding: "80px 20px",
+  backgroundColor: "#242424",
+  borderRadius: "16px",
+  border: "2px dashed #3a3a3a",
+};
+
+const suggestionsStyle = {
+  marginTop: "60px",
+  textAlign: "center",
+};
+
+const suggestionsGridStyle = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "12px",
+  justifyContent: "center",
+};
+
+const suggestionChipStyle = {
+  padding: "10px 20px",
+  backgroundColor: "#242424",
+  color: "#f39c12",
+  border: "2px solid #3a3a3a",
+  borderRadius: "50px",
+  fontSize: "14px",
+  fontWeight: "600",
+  cursor: "pointer",
+  transition: "all 0.3s ease",
+};
