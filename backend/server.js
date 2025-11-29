@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import SiteRouter from './routes/site.js'
 import AuthRouter from './routes/auth.js'
 import { checkUserExistance } from './models/auth.js';
+import OrderRouter from './routes/order.js';
 import cookieParser from "cookie-parser"
 import cors from 'cors'
 
@@ -49,6 +50,7 @@ app.get("/", (req, res)=>{
 
 app.use(SiteRouter)
 app.use(AuthRouter)
+app.use(OrderRouter);
 
 
 app.use((err, req, res, next) => 
