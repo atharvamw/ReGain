@@ -123,9 +123,11 @@ export default function MySites() {
       return;
     }
     
-    if (!newSiteForm.phone || newSiteForm.phone.trim().length === 0) {
+    // Clean phone number
+    const cleanPhone = newSiteForm.phone.replace(/[^0-9]/g, '');
+    if (!cleanPhone || cleanPhone.length !== 10) {
       setAddFeedback("error");
-      alert("Please enter a phone number!");
+      alert("Please enter a valid 10-digit phone number!");
       return;
     }
     
@@ -141,20 +143,31 @@ export default function MySites() {
       return;
     }
     
+    // Validate materials
+    const hasInvalidMaterial = customMaterials.some(mat => 
+      !mat.name.trim() || mat.stock < 0 || mat.price < 0
+    );
+    
+    if (hasInvalidMaterial) {
+      setAddFeedback("error");
+      alert("All materials must have a name, stock, and price!");
+      return;
+    }
+    
     const materialsMap = {};
     customMaterials.forEach(mat => {
       if (mat.name.trim()) {
         const key = mat.name.toLowerCase().replace(/\s+/g, '_');
         materialsMap[key] = {
-          stock: mat.stock || 0,
-          price: mat.price || 0
+          stock: parseInt(mat.stock) || 0,
+          price: parseInt(mat.price) || 0
         };
       }
     });
     
     const payload = {
-      name: newSiteForm.name,
-      phone: newSiteForm.phone,
+      name: newSiteForm.name.trim(),
+      phone: cleanPhone,
       isActive: newSiteForm.isActive,
       materials: materialsMap,
       location: newSiteForm.location,
@@ -174,8 +187,8 @@ export default function MySites() {
       console.log("Backend response:", result);
 
       if (result.status === "success") {
-        // Immediately update the sites state with the new site
-        setSites(prevSites => [...prevSites, result.data]);
+        // Fetch updated sites list to ensure sync
+        await fetchSites();
         setAddFeedback("success");
         setTimeout(() => {
           setIsAddingNewSite(false);
@@ -191,7 +204,7 @@ export default function MySites() {
         }, 1500);
       } else {
         setAddFeedback("error");
-        alert(`Backend Error: ${result.message || "Registration failed"}`);
+        alert(`Error: ${result.message || "Registration failed"}`);
         console.error("Backend validation failed:", result);
       }
     } catch (error) {
@@ -339,33 +352,33 @@ export default function MySites() {
                           placeholder="Material name (e.g., Cement, Bricks)"
                           className="col-span-5 p-2 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm outline-none focus:border-[#f39c12]"
                         />
-                        <div className="col-span-3 relative">
+                        <div className="col-span-3 flex flex-col">
+                          <label className="text-[10px] text-[#888] mb-1">Stock (Qty)</label>
                           <input
                             type="number"
-                            value={material.stock}
+                            value={material.stock === 0 ? '' : material.stock}
                             onChange={(e) => {
                               const updated = [...customMaterials];
-                              updated[index].stock = parseInt(e.target.value) || 0;
+                              updated[index].stock = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
                               setCustomMaterials(updated);
                             }}
-                            placeholder="Stock"
-                            className="w-full p-2 pl-8 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm text-center outline-none focus:border-[#f39c12]"
+                            placeholder="0"
+                            className="w-full p-2 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm text-center outline-none focus:border-[#f39c12] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
-                          <Package size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-[#888]" />
                         </div>
-                        <div className="col-span-3 relative">
+                        <div className="col-span-3 flex flex-col">
+                          <label className="text-[10px] text-[#888] mb-1">Price (₹)</label>
                           <input
                             type="number"
-                            value={material.price}
+                            value={material.price === 0 ? '' : material.price}
                             onChange={(e) => {
                               const updated = [...customMaterials];
-                              updated[index].price = parseInt(e.target.value) || 0;
+                              updated[index].price = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
                               setCustomMaterials(updated);
                             }}
-                            placeholder="Price"
-                            className="w-full p-2 pl-8 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm text-center outline-none focus:border-[#f39c12]"
+                            placeholder="0"
+                            className="w-full p-2 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm text-center outline-none focus:border-[#f39c12] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
-                          <IndianRupee size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-[#888]" />
                         </div>
                         <button
                           onClick={() => setCustomMaterials(customMaterials.filter((_, i) => i !== index))}
@@ -491,8 +504,14 @@ export default function MySites() {
                         <div key={index} className="bg-[#1a1a1a] p-3 rounded-lg border border-[#3a3a3a]">
                           <div className="grid grid-cols-12 gap-2 items-center">
                             <input type="text" value={material.name} onChange={(e) => { const updated = [...editCustomMaterials]; updated[index].name = e.target.value; setEditCustomMaterials(updated); }} placeholder="Material" className="col-span-5 p-2 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm outline-none focus:border-[#f39c12]" />
-                            <input type="number" value={material.stock} onChange={(e) => { const updated = [...editCustomMaterials]; updated[index].stock = parseInt(e.target.value) || 0; setEditCustomMaterials(updated); }} placeholder="Stock" className="col-span-3 p-2 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm text-center outline-none focus:border-[#f39c12]" />
-                            <input type="number" value={material.price} onChange={(e) => { const updated = [...editCustomMaterials]; updated[index].price = parseInt(e.target.value) || 0; setEditCustomMaterials(updated); }} placeholder="Price" className="col-span-3 p-2 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm text-center outline-none focus:border-[#f39c12]" />
+                            <div className="col-span-3 flex flex-col">
+                              <label className="text-[10px] text-[#888] mb-1">Stock</label>
+                              <input type="number" value={material.stock === 0 ? '' : material.stock} onChange={(e) => { const updated = [...editCustomMaterials]; updated[index].stock = e.target.value === '' ? 0 : parseInt(e.target.value) || 0; setEditCustomMaterials(updated); }} placeholder="0" className="w-full p-2 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm text-center outline-none focus:border-[#f39c12] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                            </div>
+                            <div className="col-span-3 flex flex-col">
+                              <label className="text-[10px] text-[#888] mb-1">Price (₹)</label>
+                              <input type="number" value={material.price === 0 ? '' : material.price} onChange={(e) => { const updated = [...editCustomMaterials]; updated[index].price = e.target.value === '' ? 0 : parseInt(e.target.value) || 0; setEditCustomMaterials(updated); }} placeholder="0" className="w-full p-2 bg-[#242424] border border-[#3a3a3a] rounded text-white text-sm text-center outline-none focus:border-[#f39c12] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                            </div>
                             <button onClick={() => setEditCustomMaterials(editCustomMaterials.filter((_, i) => i !== index))} className="col-span-1 text-[#e74c3c] hover:text-[#c0392b]"><XCircle size={18} /></button>
                           </div>
                         </div>

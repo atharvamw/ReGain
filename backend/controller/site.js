@@ -111,9 +111,8 @@ export async function handleUpdateMySite(req, res)
     {
         if(!req.body?.id)
         {
-            res.json({status: "failed", message: "Please Provide Site Id as id"});
+            return res.json({status: "failed", message: "Please Provide Site Id as id"});
         }
-        
         
         if(req.cookies?.token)
         {
@@ -128,66 +127,57 @@ export async function handleUpdateMySite(req, res)
                 const materials = req.body.materials;
                 const location = req.body.location;
 
-                const phoneRegex = /^[7-9][0-9]{9}$/
+                const phoneRegex = /^[0-9]{10}$/
                 
                 if(name && name.length < 6 )
                 {
-                    res.json({status: "failed", message: "Invalid Name"});
+                    return res.json({status: "failed", message: "Invalid Name"});
                 }
-                else if(phone && !phoneRegex.test(phone))
+                else if(phone && !phoneRegex.test(phone.replace(/[^0-9]/g, '')))
                 {
-                    res.json({status: "failed", message: "Invalid Phone"});
+                    return res.json({status: "failed", message: "Invalid Phone"});
                 }
-                else if(isActive && typeof isActive != "boolean" )
+                else if(isActive !== undefined && typeof isActive != "boolean" )
                 {
-                    res.json({status: "failed", message: "Invalid isActive"});
+                    return res.json({status: "failed", message: "Invalid isActive"});
                 }
                 else if(materials && typeof materials != "object" )
                 {
-                    res.json({status: "failed", message: "Invalid Materials"});
+                    return res.json({status: "failed", message: "Invalid Materials"});
                 }
                 else if(location && (typeof location.coordinates != "object" || !location.coordinates[0] || !location.coordinates[1] || typeof location.coordinates[0] != "number" || typeof location.coordinates[1] != "number" || location.coordinates?.length!=2))
                 {
-                    res.json({status: "failed", message: "Provide Type: Number - Coordinates In the Coordinates Array and Length of coordinates array must be 2"});
+                    return res.json({status: "failed", message: "Provide Type: Number - Coordinates In the Coordinates Array and Length of coordinates array must be 2"});
                 }
                 else if(location && (typeof location != "object" || location?.type!="Point"))
                 {
-                    res.json({status: "failed", message: "Invalid Locations"});
+                    return res.json({status: "failed", message: "Invalid Locations"});
                 }
                 
-                const updateData = {name, phone, isActive, materials, location}
-
-                /* Not Necessary all of them just any one or more.
-                    {
-                        name: String,
-                        phone: String,
-                        isActive: Boolean,
-                        materials: {type: Object},
-                        location: 
-                        {
-                            type: {type: String, enum: ["Point"], required: true},
-                            coordinates: {type: [Number], required: true}
-                        }
-                    }
-                */
+                const updateData = {};
+                if(name) updateData.name = name;
+                if(phone) updateData.phone = phone.replace(/[^0-9]/g, '');
+                if(isActive !== undefined) updateData.isActive = isActive;
+                if(materials) updateData.materials = materials;
+                if(location) updateData.location = location;
                 
-                const data = await updateMySite(id, token.email,updateData);
-                res.json(data)
+                const data = await updateMySite(id, token.email, updateData);
+                return res.json(data)
             }
             else
             {
-                res.json({status: "failed", message: "You are not Authenticated"});
+                return res.json({status: "failed", message: "You are not Authenticated"});
             }
         }
         else
         {
-            res.json({status: "failed", message: "Please Login First!"});
+            return res.json({status: "failed", message: "Please Login First!"});
         }
     }
     catch(err)
     {
-        res.json({status:"failed", message: err.toString()})
-        console.log(err);
+        console.error("Update Site Error:", err);
+        return res.json({status:"failed", message: err.toString()})
     }
 }
 
@@ -206,66 +196,62 @@ export async function handleAddMySite(req, res)
                 const isActive = req.body.isActive;
                 const materials = req.body.materials;
                 const location = req.body.location;
-
-                const phoneRegex = /^[7-9][0-9]{9}$/
+                const phoneRegex = /^[0-9]{10}$/
                 
-                if(name.length < 6 )
+                if(!name || name.length < 6 )
                 {
-                    res.json({status: "failed", message: "Invalid Name"});
+                    return res.json({status: "failed", message: "Site name must be at least 6 characters"});
                 }
-                else if(!phoneRegex.test(phone))
+                else if(!phone || !phoneRegex.test(phone.replace(/[^0-9]/g, '')))
                 {
-                    res.json({status: "failed", message: "Invalid Phone"});
+                    return res.json({status: "failed", message: "Phone must be 10 digits"});
                 }
                 else if(typeof isActive != "boolean" )
                 {
-                    res.json({status: "failed", message: "Invalid isActive"});
+                    return res.json({status: "failed", message: "Invalid isActive field"});
                 }
-                else if(typeof materials != "object" )
+                else if(!materials || typeof materials != "object" || Object.keys(materials).length === 0)
                 {
-                    res.json({status: "failed", message: "Invalid Materials"});
+                    return res.json({status: "failed", message: "At least one material is required"});
                 }
-                else if((typeof location.coordinates != "object" || !location.coordinates[0] || !location.coordinates[1] || typeof location.coordinates[0] != "number" || typeof location.coordinates[1] != "number" || location.coordinates?.length!=2))
+                else if(!location || typeof location.coordinates != "object" || !location.coordinates[0] || !location.coordinates[1] || typeof location.coordinates[0] != "number" || typeof location.coordinates[1] != "number" || location.coordinates?.length!=2)
                 {
-                    res.json({status: "failed", message: "Provide Type: Number - Coordinates In the Coordinates Array and Length of coordinates array must be 2"});
+                    return res.json({status: "failed", message: "Valid location coordinates required (latitude, longitude)"});
                 }
-                else if((typeof location != "object" || location?.type!="Point"))
+                else if(location.coordinates[0] === 0 && location.coordinates[1] === 0)
                 {
-                    res.json({status: "failed", message: "Invalid Locations"});
+                    return res.json({status: "failed", message: "Please set a valid location"});
+                }
+                else if(location?.type!="Point")
+                {
+                    return res.json({status: "failed", message: "Location type must be 'Point'"});
                 }
                 
-                const addData = {name, email: token.email, phone, isActive, materials, location}
-
-                /* Necessary all of them just any one or more.
-                    {
-                        name: String,
-                        phone: String,
-                        isActive: Boolean,
-                        materials: {type: Object},
-                        location: 
-                        {
-                            type: {type: String, enum: ["Point"], required: true},
-                            coordinates: {type: [Number], required: true}
-                        }
-                    }
-                */
+                const addData = {
+                    name, 
+                    email: token.email, 
+                    phone: phone.replace(/[^0-9]/g, ''), 
+                    isActive, 
+                    materials, 
+                    location
+                }
                 
                 const data = await addMySite(token.email, addData);
-                res.json(data)
+                return res.json(data)
             }
             else
             {
-                res.json({status: "failed", message: "You are not Authenticated"});
+                return res.json({status: "failed", message: "Authentication failed"});
             }
         }
         else
         {
-            res.json({status: "failed", message: "Please Login First!"});
+            return res.json({status: "failed", message: "Please login first"});
         }
     }
     catch(err)
     {
-        res.json({status:"failed", message: err.toString()})
-        console.log(err);
+        console.error("Add Site Error:", err);
+        return res.json({status:"failed", message: "Server error: " + err.toString()})
     }
 }

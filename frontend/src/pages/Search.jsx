@@ -68,31 +68,30 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
-  const [radius, setRadius] = useState(10); // Default 10 km radius
+  const [radius, setRadius] = useState(10);
   const [selectedSite, setSelectedSite] = useState(null);
 
-  // Handle search query changes and reset if cleared
   const handleSearchQueryChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
 
-    // Reset to initial state if search bar is completely cleared
     if (value.trim() === "") {
       setSearched(false);
       setResults([]);
     }
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async (materialQuery = null) => {
     if (!userLocation) {
       alert("Please allow location access to search nearby sites");
       getUserLocation();
       return;
     }
-
     setLoading(true);
     setSearched(true);
-
+    
+    const queryToUse = materialQuery || searchQuery;
+    
     try {
       const response = await fetch("https://api.regain.pp.ua/getNearestSites", {
         method: "POST",
@@ -103,17 +102,14 @@ export default function Search() {
           userCords: [userLocation.lat, userLocation.lng],
         }),
       });
-
       const result = await response.json();
       console.log(result, userLocation.lat, userLocation.lng, radius);
-
       if (result.status === "success") {
-        // Filter results by material if searchQuery is provided
         let filteredResults = result.data || [];
-        if (searchQuery.trim()) {
+        if (queryToUse.trim()) {
           filteredResults = filteredResults.filter((site) =>
             Object.keys(site.materials || {}).some((material) =>
-              material.toLowerCase().includes(searchQuery.toLowerCase())
+              material.toLowerCase().includes(queryToUse.toLowerCase())
             )
           );
         }
@@ -166,7 +162,6 @@ export default function Search() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Hero Search Section */}
         <motion.div
           style={heroSectionStyle}
           initial={{ opacity: 0, y: -20 }}
@@ -183,8 +178,6 @@ export default function Search() {
           <p style={subtitleStyle}>
             Search for materials from nearby construction sites and reduce waste
           </p>
-
-          {/* Search Bar */}
           <div style={searchBarContainerStyle}>
             <div style={searchBarStyle}>
               <SearchIcon size={24} style={searchIconStyle} />
@@ -223,7 +216,6 @@ export default function Search() {
               </motion.button>
             </div>
           </div>
-
           {!userLocation && (
             <motion.button
               onClick={getUserLocation}
@@ -237,7 +229,6 @@ export default function Search() {
           )}
         </motion.div>
 
-        {/* Map Section */}
         {searched && userLocation && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -274,8 +265,6 @@ export default function Search() {
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
-
-                    {/* User Location Marker */}
                     <Marker
                       position={[userLocation.lat, userLocation.lng]}
                       icon={userIcon}
@@ -290,8 +279,6 @@ export default function Search() {
                         </div>
                       </Popup>
                     </Marker>
-
-                    {/* Site Markers */}
                     {results.map((site, index) => (
                       <Marker
                         key={site._id || index}
@@ -305,6 +292,13 @@ export default function Search() {
                           <div style={popupContentStyle}>
                             <h3 style={popupTitleStyle}>{site.name}</h3>
                             <div style={popupDetailsStyle}>
+                              <div style={popupRowStyle}>
+                                <MapPin size={14} style={{ color: "#888" }} />
+                                <span>
+                                  {site.location.coordinates[0].toFixed(4)},{" "}
+                                  {site.location.coordinates[1].toFixed(4)}
+                                </span>
+                              </div>
                               <div style={popupRowStyle}>
                                 <Phone size={14} style={{ color: "#888" }} />
                                 <span>{site.phone}</span>
@@ -391,7 +385,6 @@ export default function Search() {
           </motion.div>
         )}
 
-        {/* Suggestions (when not searched) */}
         {!searched && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -423,7 +416,7 @@ export default function Search() {
                     onClick={() => {
                       setSearchQuery(material);
                       if (userLocation) {
-                        setTimeout(handleSearch, 100);
+                        handleSearch(material);
                       } else {
                         getUserLocation();
                       }
@@ -441,293 +434,4 @@ export default function Search() {
   );
 }
 
-// Styles
-const containerStyle = {
-  minHeight: "calc(100vh - 80px)",
-  backgroundColor: "#1a1a1a",
-  padding: "40px 20px",
-};
-
-const contentStyle = {
-  maxWidth: "1400px",
-  margin: "0 auto",
-};
-
-const heroSectionStyle = {
-  textAlign: "center",
-  marginBottom: "40px",
-};
-
-const titleStyle = {
-  fontSize: "clamp(32px, 5vw, 48px)",
-  fontWeight: "800",
-  color: "#fff",
-  marginBottom: "16px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const subtitleStyle = {
-  fontSize: "clamp(16px, 2vw, 20px)",
-  color: "#aaa",
-  marginBottom: "40px",
-};
-
-const searchBarContainerStyle = {
-  display: "flex",
-  justifyContent: "center",
-  marginBottom: "20px",
-};
-
-const searchBarStyle = {
-  display: "flex",
-  alignItems: "center",
-  backgroundColor: "#242424",
-  border: "2px solid #3a3a3a",
-  borderRadius: "50px",
-  padding: "8px 8px 8px 24px",
-  maxWidth: "900px",
-  width: "100%",
-  transition: "all 0.3s ease",
-  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-  gap: "12px",
-};
-
-const searchIconStyle = {
-  color: "#888",
-  marginRight: "12px",
-};
-
-const searchInputStyle = {
-  flex: 1,
-  backgroundColor: "transparent",
-  border: "none",
-  outline: "none",
-  color: "#fff",
-  fontSize: "16px",
-  padding: "12px 0",
-};
-
-const radiusInputContainer = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-  backgroundColor: "#1a1a1a",
-  padding: "8px 12px",
-  borderRadius: "20px",
-};
-
-const radiusInputStyle = {
-  width: "50px",
-  backgroundColor: "transparent",
-  border: "none",
-  outline: "none",
-  color: "#fff",
-  fontSize: "14px",
-  textAlign: "center",
-};
-
-const radiusLabelStyle = {
-  color: "#888",
-  fontSize: "14px",
-};
-
-const searchButtonStyle = {
-  backgroundColor: "#f39c12",
-  color: "#1a1a1a",
-  border: "none",
-  borderRadius: "50px",
-  padding: "12px 32px",
-  fontSize: "16px",
-  fontWeight: "700",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-};
-
-const locationButtonStyle = {
-  backgroundColor: "#3498db",
-  color: "#fff",
-  border: "none",
-  borderRadius: "50px",
-  padding: "12px 24px",
-  fontSize: "14px",
-  fontWeight: "600",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  display: "inline-flex",
-  alignItems: "center",
-  marginTop: "10px",
-};
-
-const mapContainerStyle = {
-  marginTop: "40px",
-};
-
-const loadingContainerStyle = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "80px 20px",
-};
-
-const resultsHeaderStyle = {
-  fontSize: "24px",
-  color: "#f39c12",
-  marginBottom: "20px",
-  fontWeight: "600",
-  display: "flex",
-  alignItems: "center",
-};
-
-const mapWrapperStyle = {
-  borderRadius: "16px",
-  overflow: "hidden",
-  border: "2px solid #3a3a3a",
-  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3)",
-};
-
-const mapStyle = {
-  height: "600px",
-  width: "100%",
-};
-
-const popupStyle = {
-  padding: "4px",
-};
-
-const popupContentStyle = {
-  padding: "8px",
-  minWidth: "250px",
-};
-
-const popupTitleStyle = {
-  fontSize: "18px",
-  fontWeight: "700",
-  color: "#f39c12",
-  margin: "0 0 12px 0",
-};
-
-const popupDetailsStyle = {
-  marginBottom: "12px",
-};
-
-const popupRowStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-  color: "#333",
-  fontSize: "13px",
-  marginBottom: "4px",
-};
-
-const popupMaterialsStyle = {
-  marginBottom: "12px",
-};
-
-const popupMaterialsTitleStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-  color: "#333",
-  fontSize: "14px",
-  fontWeight: "600",
-  marginBottom: "8px",
-};
-
-const popupMaterialsGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2, 1fr)",
-  gap: "8px",
-};
-
-const popupMaterialCardStyle = {
-  backgroundColor: "#f8f9fa",
-  padding: "8px",
-  borderRadius: "6px",
-  border: "1px solid #dee2e6",
-};
-
-const popupMaterialNameStyle = {
-  display: "block",
-  color: "#333",
-  fontSize: "12px",
-  fontWeight: "600",
-  marginBottom: "4px",
-  textTransform: "capitalize",
-};
-
-const popupMaterialInfoStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const popupStockStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-  color: "#666",
-  fontSize: "11px",
-};
-
-const popupPriceStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-  color: "#f39c12",
-  fontSize: "11px",
-  fontWeight: "700",
-};
-
-const popupBuyButtonStyle = {
-  width: "100%",
-  padding: "10px",
-  backgroundColor: "#f39c12",
-  color: "#fff",
-  border: "none",
-  borderRadius: "6px",
-  fontSize: "13px",
-  fontWeight: "700",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const noResultsStyle = {
-  textAlign: "center",
-  padding: "80px 20px",
-  backgroundColor: "#242424",
-  borderRadius: "16px",
-  border: "2px dashed #3a3a3a",
-};
-
-const suggestionsStyle = {
-  marginTop: "60px",
-  textAlign: "center",
-};
-
-const suggestionsGridStyle = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: "12px",
-  justifyContent: "center",
-};
-
-const suggestionChipStyle = {
-  padding: "10px 20px",
-  backgroundColor: "#242424",
-  color: "#f39c12",
-  border: "2px solid #3a3a3a",
-  borderRadius: "50px",
-  fontSize: "14px",
-  fontWeight: "600",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-};
+// ...existing code (all the style definitions)...

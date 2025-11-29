@@ -34,7 +34,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/mysites" element={<ProtectedRoute><MySites /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/search" element={<Search />} />
+        <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
       </Routes>
     </>
   );
