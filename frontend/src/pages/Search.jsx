@@ -12,6 +12,7 @@ import {
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import BuyModal from "../components/BuyModal";
 
 // Custom marker icons
 const userIcon = L.divIcon({
@@ -111,7 +112,7 @@ export default function Search() {
         }),
       });
       const result = await response.json();
-      console.log(result, userLocation.lat, userLocation.lng, radius);
+      
       if (result.status === "success") {
         let filteredResults = result.data || [];
         if (queryToUse.trim()) {
@@ -162,14 +163,6 @@ export default function Search() {
     if (e.key === "Enter") {
       handleSearch();
     }
-  };
-
-  const handleBuy = (site) => {
-    setSelectedSite(site);
-  };
-
-  const closeBuyModal = () => {
-    setSelectedSite(null);
   };
 
   const submitOrder = async (quantities) => {
@@ -231,55 +224,55 @@ export default function Search() {
   };
 
   return (
-    <div style={containerStyle}>
+    <div className="min-h-[calc(100vh-80px)] bg-[#1a1a1a] py-10 px-5">
       <motion.div
-        style={contentStyle}
+        className="max-w-[1400px] mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <motion.div
-          style={heroSectionStyle}
+          className="text-center mb-10"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 style={titleStyle}>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 flex items-center justify-center">
             <SearchIcon
               size={48}
-              style={{ marginRight: "16px", color: "#f39c12" }}
+              className="mr-4 text-[#f39c12]"
             />
             Find Construction Materials
           </h1>
-          <p style={subtitleStyle}>
+          <p className="text-base md:text-xl text-[#aaa] mb-10">
             Search for materials from nearby construction sites and reduce waste
           </p>
-          <div style={searchBarContainerStyle}>
-            <div style={searchBarStyle}>
-              <SearchIcon size={24} style={searchIconStyle} />
+          <div className="flex justify-center mb-5">
+            <div className="flex items-center bg-[#242424] border-2 border-[#3a3a3a] rounded-full p-2 pl-6 max-w-[900px] w-full shadow-lg gap-3 transition-all duration-300">
+              <SearchIcon size={24} className="text-[#888] mr-3" />
               <input
                 type="text"
                 placeholder="Search for materials (e.g., cement, bricks, steel...)"
                 value={searchQuery}
                 onChange={handleSearchQueryChange}
                 onKeyPress={handleKeyPress}
-                style={searchInputStyle}
+                className="flex-1 bg-transparent border-none outline-none text-white text-base py-3"
               />
-              <div style={radiusInputContainer}>
+              <div className="flex items-center gap-1 bg-[#1a1a1a] py-2 px-3 rounded-3xl">
                 <input
                   type="number"
                   value={radius}
                   onChange={(e) => setRadius(parseInt(e.target.value) || 10)}
                   min="1"
                   max="100"
-                  style={radiusInputStyle}
+                  className="w-[50px] bg-transparent border-none outline-none text-white text-sm text-center"
                   placeholder="Radius"
                 />
-                <span style={radiusLabelStyle}>km</span>
+                <span className="text-[#888] text-sm">km</span>
               </div>
               <motion.button
-                onClick={handleSearch}
-                style={searchButtonStyle}
+                onClick={() => handleSearch()}
+                className="bg-[#f39c12] text-[#1a1a1a] border-none rounded-full py-3 px-8 text-base font-bold cursor-pointer transition-all duration-300 flex items-center gap-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 disabled={loading}
@@ -294,12 +287,12 @@ export default function Search() {
           </div>
           {!userLocation && (
             <motion.button
-              onClick={getUserLocation}
-              style={locationButtonStyle}
+              onClick={() => getUserLocation()}
+              className="bg-[#3498db] text-white border-none rounded-full py-3 px-6 text-sm font-semibold cursor-pointer transition-all duration-300 inline-flex items-center mt-2.5"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <MapPin size={20} style={{ marginRight: "8px" }} />
+              <MapPin size={20} className="mr-2" />
               Enable Location Access
             </motion.button>
           )}
@@ -310,31 +303,30 @@ export default function Search() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            style={mapContainerStyle}
+            className="mt-10"
           >
             {loading ? (
-              <div style={loadingContainerStyle}>
+              <div className="flex flex-col items-center justify-center py-20 px-5">
                 <Loader
                   size={48}
-                  className="animate-spin"
-                  style={{ color: "#f39c12" }}
+                  className="animate-spin text-[#f39c12]"
                 />
-                <p style={{ color: "#aaa", marginTop: "20px" }}>
+                <p className="text-[#aaa] mt-5">
                   Searching nearby sites...
                 </p>
               </div>
             ) : results.length > 0 ? (
               <>
-                <h2 style={resultsHeaderStyle}>
-                  <MapIcon size={24} style={{ marginRight: "12px" }} />
+                <h2 className="text-2xl text-[#f39c12] mb-5 font-semibold flex items-center">
+                  <MapIcon size={24} className="mr-3" />
                   Found {results.length} site{results.length !== 1 ? "s" : ""}{" "}
                   within {radius} km
                 </h2>
-                <div style={mapWrapperStyle}>
+                <div className="rounded-2xl overflow-hidden border-2 border-[#3a3a3a] shadow-2xl">
                   <MapContainer
                     center={[userLocation.lat, userLocation.lng]}
                     zoom={12}
-                    style={mapStyle}
+                    className="h-[600px] w-full"
                     zoomControl={true}
                   >
                     <TileLayer
@@ -346,10 +338,8 @@ export default function Search() {
                       icon={userIcon}
                     >
                       <Popup>
-                        <div style={popupStyle}>
-                          <strong
-                            style={{ color: "#3498db", fontSize: "16px" }}
-                          >
+                        <div className="p-1">
+                          <strong className="text-[#3498db] text-base">
                             Your Location
                           </strong>
                         </div>
@@ -365,50 +355,50 @@ export default function Search() {
                         icon={siteIcon}
                       >
                         <Popup maxWidth={300}>
-                          <div style={popupContentStyle}>
-                            <h3 style={popupTitleStyle}>{site.name}</h3>
-                            <div style={popupDetailsStyle}>
-                              <div style={popupRowStyle}>
-                                <MapPin size={14} style={{ color: "#888" }} />
+                          <div className="p-2 min-w-[250px]">
+                            <h3 className="text-lg font-bold text-[#f39c12] m-0 mb-3">{site.name}</h3>
+                            <div className="mb-3">
+                              <div className="flex items-center gap-1.5 text-[#333] text-[13px] mb-1">
+                                <MapPin size={14} className="text-[#888]" />
                                 <span>
                                   {site.location.coordinates[0].toFixed(4)},{" "}
                                   {site.location.coordinates[1].toFixed(4)}
                                 </span>
                               </div>
-                              <div style={popupRowStyle}>
-                                <Phone size={14} style={{ color: "#888" }} />
+                              <div className="flex items-center gap-1.5 text-[#333] text-[13px] mb-1">
+                                <Phone size={14} className="text-[#888]" />
                                 <span>{site.phone}</span>
                               </div>
                             </div>
-                            <div style={popupMaterialsStyle}>
-                              <h4 style={popupMaterialsTitleStyle}>
+                            <div className="mb-3">
+                              <h4 className="flex items-center gap-1.5 text-[#333] text-sm font-semibold mb-2">
                                 <Package size={14} />
                                 Available Materials
                               </h4>
-                              <div style={popupMaterialsGridStyle}>
+                              <div className="grid grid-cols-2 gap-2">
                                 {Object.entries(site.materials || {}).map(
                                   ([material, details]) => (
                                     <div
                                       key={material}
-                                      style={popupMaterialCardStyle}
+                                      className="bg-[#f8f9fa] p-2 rounded-md border border-[#dee2e6]"
                                     >
-                                      <span style={popupMaterialNameStyle}>
+                                      <span className="block text-[#333] text-xs font-semibold mb-1 capitalize">
                                         {material.replace("_", " ")}
                                       </span>
-                                      <div style={popupMaterialInfoStyle}>
+                                      <div className="flex justify-between items-center">
                                         {typeof details === "object" ? (
                                           <>
-                                            <span style={popupStockStyle}>
+                                            <span className="flex items-center gap-1 text-[#666] text-[11px]">
                                               <Package size={10} />
                                               {details.stock}
                                             </span>
-                                            <span style={popupPriceStyle}>
+                                            <span className="flex items-center gap-1 text-[#f39c12] text-[11px] font-bold">
                                               <IndianRupee size={10} />
                                               {details.price}
                                             </span>
                                           </>
                                         ) : (
-                                          <span style={popupStockStyle}>
+                                          <span className="flex items-center gap-1 text-[#666] text-[11px]">
                                             <Package size={10} />
                                             {details}
                                           </span>
@@ -420,12 +410,12 @@ export default function Search() {
                               </div>
                             </div>
                             <motion.button
-                              onClick={() => handleBuy(site)}
-                              style={popupBuyButtonStyle}
+                              onClick={() => setSelectedSite(site)}
+                              className="w-full p-2.5 bg-[#f39c12] text-white border-none rounded-md text-[13px] font-bold cursor-pointer transition-all duration-300 flex items-center justify-center"
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                             >
-                              <Phone size={14} style={{ marginRight: "6px" }} />
+                              <Phone size={14} className="mr-1.5" />
                               Contact to Buy
                             </motion.button>
                           </div>
@@ -436,21 +426,15 @@ export default function Search() {
                 </div>
               </>
             ) : (
-              <div style={noResultsStyle}>
+              <div className="text-center py-20 px-5 bg-[#242424] rounded-2xl border-2 border-dashed border-[#3a3a3a]">
                 <Package
                   size={64}
-                  style={{ color: "#3a3a3a", marginBottom: "20px" }}
+                  className="text-[#3a3a3a] mb-5 mx-auto"
                 />
-                <h3
-                  style={{
-                    color: "#f39c12",
-                    fontSize: "24px",
-                    marginBottom: "10px",
-                  }}
-                >
+                <h3 className="text-[#f39c12] text-2xl mb-2.5">
                   No Results Found
                 </h3>
-                <p style={{ color: "#aaa", fontSize: "16px" }}>
+                <p className="text-[#aaa] text-base">
                   No construction sites found within {radius} km.
                   <br />
                   Try increasing the search radius or searching for different
@@ -466,28 +450,18 @@ export default function Search() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            style={suggestionsStyle}
+            className="mt-[60px] text-center"
           >
-            <h3
-              style={{
-                color: "#f39c12",
-                fontSize: "20px",
-                marginBottom: "20px",
-              }}
-            >
+            <h3 className="text-[#f39c12] text-xl mb-5">
               Popular Materials
             </h3>
-            <div style={suggestionsGridStyle}>
+            <div className="flex flex-wrap gap-3 justify-center">
               {["Cement", "Bricks", "Steel", "Sand", "Wood", "Gravel"].map(
                 (material) => (
                   <motion.button
                     key={material}
-                    style={suggestionChipStyle}
-                    whileHover={{
-                      scale: 1.05,
-                      backgroundColor: "#f39c12",
-                      color: "#1a1a1a",
-                    }}
+                    className="py-2.5 px-5 bg-[#242424] text-[#f39c12] border-2 border-[#3a3a3a] rounded-full text-sm font-semibold cursor-pointer transition-all duration-300 hover:bg-[#f39c12] hover:text-[#1a1a1a]"
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       setSearchQuery(material);
@@ -506,455 +480,12 @@ export default function Search() {
           </motion.div>
         )}
 
-        {/* Buy Modal */}
-        {selectedSite && (
-          <div style={modalOverlayStyle}>
-            <motion.div 
-              style={modalStyle}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-            >
-              <h2 style={modalTitleStyle}>Place Order</h2>
-              <p style={modalSubtitleStyle}>Ordering from {selectedSite.name}</p>
-              
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.target);
-                  const quantities = {};
-                  Object.keys(selectedSite.materials || {}).forEach(material => {
-                    quantities[material] = formData.get(material);
-                  });
-                  submitOrder(quantities);
-                }}
-              >
-                <div style={modalMaterialsListStyle}>
-                  {Object.entries(selectedSite.materials || {}).map(([material, details]) => (
-                    <div key={material} style={modalMaterialRowStyle}>
-                      <div style={modalMaterialInfoStyle}>
-                        <span style={modalMaterialNameStyle}>{material}</span>
-                        <span style={modalPriceStyle}>
-                          ₹{typeof details === 'object' ? details.price : 'N/A'}
-                        </span>
-                      </div>
-                      <input
-                        type="number"
-                        name={material}
-                        min="0"
-                        placeholder="Qty"
-                        style={modalInputStyle}
-                      />
-                    </div>
-                  ))}
-                </div>
-                
-                <div style={modalActionsStyle}>
-                  <button type="button" onClick={closeBuyModal} style={modalCancelBtnStyle}>
-                    Cancel
-                  </button>
-                  <button type="submit" style={modalSubmitBtnStyle}>
-                    Place Order
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
+        <BuyModal
+          site={selectedSite}
+          onClose={() => setSelectedSite(null)}
+          onSubmit={submitOrder}
+        />
       </motion.div>
     </div>
   );
 }
-
-// Styles
-const modalOverlayStyle = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: 'rgba(0,0,0,0.7)',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 2000,
-};
-
-const modalStyle = {
-  backgroundColor: '#242424',
-  padding: '30px',
-  borderRadius: '16px',
-  width: '90%',
-  maxWidth: '500px',
-  border: '1px solid #3a3a3a',
-  boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-};
-
-const modalTitleStyle = {
-  color: '#f39c12',
-  fontSize: '24px',
-  marginBottom: '8px',
-};
-
-const modalSubtitleStyle = {
-  color: '#aaa',
-  marginBottom: '24px',
-};
-
-const modalMaterialsListStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-  marginBottom: '24px',
-  maxHeight: '300px',
-  overflowY: 'auto',
-};
-
-const modalMaterialRowStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: '#1a1a1a',
-  padding: '12px',
-  borderRadius: '8px',
-};
-
-const modalMaterialInfoStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-};
-
-const modalMaterialNameStyle = {
-  color: '#fff',
-  fontWeight: '600',
-  textTransform: 'capitalize',
-};
-
-const modalPriceStyle = {
-  color: '#f39c12',
-  fontSize: '12px',
-};
-
-const modalInputStyle = {
-  width: '80px',
-  padding: '8px',
-  borderRadius: '6px',
-  border: '1px solid #3a3a3a',
-  backgroundColor: '#242424',
-  color: '#fff',
-  outline: 'none',
-};
-
-const modalActionsStyle = {
-  display: 'flex',
-  gap: '12px',
-  justifyContent: 'flex-end',
-};
-
-const modalCancelBtnStyle = {
-  padding: '10px 20px',
-  backgroundColor: 'transparent',
-  color: '#aaa',
-  border: '1px solid #3a3a3a',
-  borderRadius: '8px',
-  cursor: 'pointer',
-};
-
-const modalSubmitBtnStyle = {
-  padding: '10px 20px',
-  backgroundColor: '#f39c12',
-  color: '#1a1a1a',
-  border: 'none',
-  borderRadius: '8px',
-  fontWeight: '600',
-  cursor: 'pointer',
-};
-
-const containerStyle = {
-  minHeight: "calc(100vh - 80px)",
-  backgroundColor: "#1a1a1a",
-  padding: "40px 20px",
-};
-
-const contentStyle = {
-  maxWidth: "1400px",
-  margin: "0 auto",
-};
-
-const heroSectionStyle = {
-  textAlign: "center",
-  marginBottom: "40px",
-};
-
-const titleStyle = {
-  fontSize: "clamp(32px, 5vw, 48px)",
-  fontWeight: "800",
-  color: "#fff",
-  marginBottom: "16px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const subtitleStyle = {
-  fontSize: "clamp(16px, 2vw, 20px)",
-  color: "#aaa",
-  marginBottom: "40px",
-};
-
-const searchBarContainerStyle = {
-  display: "flex",
-  justifyContent: "center",
-  marginBottom: "20px",
-};
-
-const searchBarStyle = {
-  display: "flex",
-  alignItems: "center",
-  backgroundColor: "#242424",
-  border: "2px solid #3a3a3a",
-  borderRadius: "50px",
-  padding: "8px 8px 8px 24px",
-  maxWidth: "900px",
-  width: "100%",
-  transition: "all 0.3s ease",
-  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-  gap: "12px",
-};
-
-const searchIconStyle = {
-  color: "#888",
-  marginRight: "12px",
-};
-
-const searchInputStyle = {
-  flex: 1,
-  backgroundColor: "transparent",
-  border: "none",
-  outline: "none",
-  color: "#fff",
-  fontSize: "16px",
-  padding: "12px 0",
-};
-
-const radiusInputContainer = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-  backgroundColor: "#1a1a1a",
-  padding: "8px 12px",
-  borderRadius: "20px",
-};
-
-const radiusInputStyle = {
-  width: "50px",
-  backgroundColor: "transparent",
-  border: "none",
-  outline: "none",
-  color: "#fff",
-  fontSize: "14px",
-  textAlign: "center",
-};
-
-const radiusLabelStyle = {
-  color: "#888",
-  fontSize: "14px",
-};
-
-const searchButtonStyle = {
-  backgroundColor: "#f39c12",
-  color: "#1a1a1a",
-  border: "none",
-  borderRadius: "50px",
-  padding: "12px 32px",
-  fontSize: "16px",
-  fontWeight: "700",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-};
-
-const locationButtonStyle = {
-  backgroundColor: "#3498db",
-  color: "#fff",
-  border: "none",
-  borderRadius: "50px",
-  padding: "12px 24px",
-  fontSize: "14px",
-  fontWeight: "600",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  display: "inline-flex",
-  alignItems: "center",
-  marginTop: "10px",
-};
-
-const mapContainerStyle = {
-  marginTop: "40px",
-};
-
-const loadingContainerStyle = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "80px 20px",
-};
-
-const resultsHeaderStyle = {
-  fontSize: "24px",
-  color: "#f39c12",
-  marginBottom: "20px",
-  fontWeight: "600",
-  display: "flex",
-  alignItems: "center",
-};
-
-const mapWrapperStyle = {
-  borderRadius: "16px",
-  overflow: "hidden",
-  border: "2px solid #3a3a3a",
-  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3)",
-};
-
-const mapStyle = {
-  height: "600px",
-  width: "100%",
-};
-
-const popupStyle = {
-  padding: "4px",
-};
-
-const popupContentStyle = {
-  padding: "8px",
-  minWidth: "250px",
-};
-
-const popupTitleStyle = {
-  fontSize: "18px",
-  fontWeight: "700",
-  color: "#f39c12",
-  margin: "0 0 12px 0",
-};
-
-const popupDetailsStyle = {
-  marginBottom: "12px",
-};
-
-const popupRowStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-  color: "#333",
-  fontSize: "13px",
-  marginBottom: "4px",
-};
-
-const popupMaterialsStyle = {
-  marginBottom: "12px",
-};
-
-const popupMaterialsTitleStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-  color: "#333",
-  fontSize: "14px",
-  fontWeight: "600",
-  marginBottom: "8px",
-};
-
-const popupMaterialsGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(2, 1fr)",
-  gap: "8px",
-};
-
-const popupMaterialCardStyle = {
-  backgroundColor: "#f8f9fa",
-  padding: "8px",
-  borderRadius: "6px",
-  border: "1px solid #dee2e6",
-};
-
-const popupMaterialNameStyle = {
-  display: "block",
-  color: "#333",
-  fontSize: "12px",
-  fontWeight: "600",
-  marginBottom: "4px",
-  textTransform: "capitalize",
-};
-
-const popupMaterialInfoStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const popupStockStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-  color: "#666",
-  fontSize: "11px",
-};
-
-const popupPriceStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "4px",
-  color: "#f39c12",
-  fontSize: "11px",
-  fontWeight: "700",
-};
-
-const popupBuyButtonStyle = {
-  width: "100%",
-  padding: "10px",
-  backgroundColor: "#f39c12",
-  color: "#fff",
-  border: "none",
-  borderRadius: "6px",
-  fontSize: "13px",
-  fontWeight: "700",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const noResultsStyle = {
-  textAlign: "center",
-  padding: "80px 20px",
-  backgroundColor: "#242424",
-  borderRadius: "16px",
-  border: "2px dashed #3a3a3a",
-};
-
-const suggestionsStyle = {
-  marginTop: "60px",
-  textAlign: "center",
-};
-
-const suggestionsGridStyle = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: "12px",
-  justifyContent: "center",
-};
-
-const suggestionChipStyle = {
-  padding: "10px 20px",
-  backgroundColor: "#242424",
-  color: "#f39c12",
-  border: "2px solid #3a3a3a",
-  borderRadius: "50px",
-  fontSize: "14px",
-  fontWeight: "600",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-};
