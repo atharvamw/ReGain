@@ -2,17 +2,17 @@ import { AuthContext } from "../context/Auth";
 import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Package, MessageSquare, User, X, CheckCircle, XCircle, TrendingUp, LogOut } from "lucide-react";
+import { Package, MessageSquare, User, X, CheckCircle, XCircle, TrendingUp, LogOut, Truck, Archive, Clock } from "lucide-react";
 
 export default function Dashboard() {
   const Auth = useContext(AuthContext);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("orders");
+  const [activeTab, setActiveTab] = useState("pending");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (activeTab === "orders") {
+    if (["pending", "active", "history"].includes(activeTab)) {
       fetchOrders();
     }
   }, [activeTab]);
@@ -20,7 +20,9 @@ export default function Dashboard() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://api.regain.pp.ua/sellerPendingOrders", {
+      // We'll fetch all seller orders and filter on the frontend for simplicity
+      // In a real app with pagination, you'd want specific endpoints
+      const response = await fetch("https://api.regain.pp.ua/sellerOrders", {
         method: "GET",
         credentials: "include",
       });
@@ -37,46 +39,38 @@ export default function Dashboard() {
     }
   };
 
-  const handleRejectOrder = async (orderId) => {
-    if (!confirm("Are you sure you want to reject this order?")) return;
-    
-    try {
-      const response = await fetch("https://api.regain.pp.ua/rejectOrder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ orderId }),
-      });
-      const result = await response.json();
-      if (result.status === "success") {
-        alert("Order rejected successfully");
-        fetchOrders(); // Refresh list
-      } else {
-        alert("Failed to reject order: " + result.message);
-      }
-    } catch (error) {
-      console.error("Error rejecting order:", error);
-      alert("An error occurred");
+  const getFilteredOrders = () => {
+    switch (activeTab) {
+      case "pending":
+        return orders.filter(o => o.status === "pending");
+      case "active":
+        return orders.filter(o => ["approved", "shipping"].includes(o.status));
+      case "history":
+        return orders.filter(o => ["delivered", "completed", "cancelled"].includes(o.status));
+      default:
+        return [];
     }
   };
 
-  const handleApproveOrder = async (orderId) => {
+  const updateOrderStatus = async (orderId, status) => {
+    if (status === "cancelled" && !confirm("Are you sure you want to reject this order?")) return;
+    
     try {
-      const response = await fetch("https://api.regain.pp.ua/acceptOrder", {
+      const response = await fetch("https://api.regain.pp.ua/updateOrderStatus", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ orderId }),
+        body: JSON.stringify({ orderId, status }),
       });
       const result = await response.json();
       if (result.status === "success") {
-        alert("Order approved successfully");
+        alert(`Order marked as ${status}`);
         fetchOrders(); // Refresh list
       } else {
-        alert("Failed to approve order: " + result.message);
+        alert(`Failed to update order: ${result.message}`);
       }
     } catch (error) {
-      console.error("Error approving order:", error);
+      console.error("Error updating order:", error);
       alert("An error occurred");
     }
   };
@@ -158,16 +152,42 @@ export default function Dashboard() {
 
         <nav style={navStyle}>
           <motion.button
-            onClick={() => setActiveTab("orders")}
+            onClick={() => setActiveTab("pending")}
             style={{
               ...navButtonStyle,
-              ...(activeTab === "orders" ? activeNavButtonStyle : {}),
+              ...(activeTab === "pending" ? activeNavButtonStyle : {}),
+            }}
+            whileHover={{ x: 5 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Clock size={20} />
+            <span>Pending Requests</span>
+          </motion.button>
+
+          <motion.button
+            onClick={() => setActiveTab("active")}
+            style={{
+              ...navButtonStyle,
+              ...(activeTab === "active" ? activeNavButtonStyle : {}),
             }}
             whileHover={{ x: 5 }}
             whileTap={{ scale: 0.98 }}
           >
             <Package size={20} />
-            <span>Orders Requests</span>
+            <span>Active Orders</span>
+          </motion.button>
+
+          <motion.button
+            onClick={() => setActiveTab("history")}
+            style={{
+              ...navButtonStyle,
+              ...(activeTab === "history" ? activeNavButtonStyle : {}),
+            }}
+            whileHover={{ x: 5 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Archive size={20} />
+            <span>History</span>
           </motion.button>
 
           <motion.button
@@ -198,27 +218,35 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main style={mainContentStyle}>
-        {activeTab === "orders" && (
+        {["pending", "active", "history"].includes(activeTab) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+            key={activeTab} // Force re-render on tab change for animation
           >
             <h1 style={pageHeaderStyle}>
-              <Package size={32} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "12px" }} />
-              Order Requests
+              {activeTab === "pending" && <Clock size={32} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "12px" }} />}
+              {activeTab === "active" && <Package size={32} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "12px" }} />}
+              {activeTab === "history" && <Archive size={32} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "12px" }} />}
+              
+              {activeTab === "pending" && "Pending Requests"}
+              {activeTab === "active" && "Active Orders"}
+              {activeTab === "history" && "Order History"}
             </h1>
             <p style={pageDescStyle}>
-              Manage incoming order requests. Approve or Reject them.
+              {activeTab === "pending" && "Approve or reject incoming order requests."}
+              {activeTab === "active" && "Manage approved orders. Mark as shipped or completed."}
+              {activeTab === "history" && "View past completed and cancelled orders."}
             </p>
 
             {loading ? (
               <p style={{color: '#aaa'}}>Loading orders...</p>
-            ) : orders.length === 0 ? (
-              <p style={{color: '#aaa'}}>No pending orders found.</p>
+            ) : getFilteredOrders().length === 0 ? (
+              <p style={{color: '#aaa'}}>No orders found in this category.</p>
             ) : (
               <div style={cardsContainerStyle}>
-                {orders.map((order) => (
+                {getFilteredOrders().map((order) => (
                   <motion.div
                     key={order._id}
                     style={orderCardStyle}
@@ -262,24 +290,57 @@ export default function Dashboard() {
                     </div>
 
                     <div style={actionButtonsStyle}>
-                      <motion.button
-                        onClick={() => handleRejectOrder(order._id)}
-                        style={cancelButtonStyle}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <X size={16} style={{ marginRight: "6px" }} />
-                        Reject
-                      </motion.button>
-                      <motion.button
-                        onClick={() => handleApproveOrder(order._id)}
-                        style={shippedButtonStyle}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <CheckCircle size={16} style={{ marginRight: "6px" }} />
-                        Approve
-                      </motion.button>
+                      {activeTab === "pending" && (
+                        <>
+                          <motion.button
+                            onClick={() => updateOrderStatus(order._id, 'cancelled')}
+                            style={cancelButtonStyle}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <X size={16} style={{ marginRight: "6px" }} />
+                            Reject
+                          </motion.button>
+                          <motion.button
+                            onClick={() => updateOrderStatus(order._id, 'approved')}
+                            style={shippedButtonStyle}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <CheckCircle size={16} style={{ marginRight: "6px" }} />
+                            Approve
+                          </motion.button>
+                        </>
+                      )}
+
+                      {activeTab === "active" && (
+                        <>
+                          {order.status === "approved" && (
+                            <motion.button
+                              onClick={() => updateOrderStatus(order._id, 'shipping')}
+                              style={shippedButtonStyle}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Truck size={16} style={{ marginRight: "6px" }} />
+                              Mark Shipped
+                            </motion.button>
+                          )}
+                          {order.status === "shipping" && (
+                            <motion.button
+                              onClick={() => updateOrderStatus(order._id, 'completed')}
+                              style={shippedButtonStyle}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <CheckCircle size={16} style={{ marginRight: "6px" }} />
+                              Complete
+                            </motion.button>
+                          )}
+                        </>
+                      )}
+                      
+                      {/* No actions for history tab */}
                     </div>
                   </motion.div>
                 ))}
