@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { 
-    createOrder, 
-    getSellerPendingOrders, 
-    getSellerOrders, 
-    getBuyerOrders, 
+import {
+    createOrder,
+    getSellerPendingOrders,
+    getSellerOrders,
+    getBuyerOrders,
     updateOrderStatus,
-    getOrderById 
+    getOrderById
 } from '../models/order.js';
 import { getName } from '../models/auth.js';
 
@@ -37,7 +37,7 @@ export async function handlePlaceOrder(req, res) {
         }
 
         const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        
+
         if (!token) {
             return res.json({ status: "failed", message: "Invalid authentication" });
         }
@@ -59,7 +59,7 @@ export async function handlePlaceOrder(req, res) {
 
         // Get buyer details
         const buyerDetails = await getName(token.email);
-        
+
         if (buyerDetails.status !== "success") {
             return res.json({ status: "failed", message: "Failed to fetch buyer details" });
         }
@@ -96,7 +96,7 @@ export async function handleGetSellerPendingOrders(req, res) {
         }
 
         const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        
+
         if (!token) {
             return res.json({ status: "failed", message: "Invalid authentication" });
         }
@@ -118,7 +118,7 @@ export async function handleGetSellerOrders(req, res) {
         }
 
         const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        
+
         if (!token) {
             return res.json({ status: "failed", message: "Invalid authentication" });
         }
@@ -140,7 +140,7 @@ export async function handleGetBuyerOrders(req, res) {
         }
 
         const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        
+
         if (!token) {
             return res.json({ status: "failed", message: "Invalid authentication" });
         }
@@ -160,7 +160,7 @@ export async function handleUpdateOrderStatus(req, res) {
     JSON Body format:
     {
         orderId: "mongoId",
-        status: "approved" | "shipping" | "delivered" | "cancelled"
+        status: "approved" | "shipping" | "delivered" | "cancelled" | "completed"
     }
     */
     try {
@@ -169,7 +169,7 @@ export async function handleUpdateOrderStatus(req, res) {
         }
 
         const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        
+
         if (!token) {
             return res.json({ status: "failed", message: "Invalid authentication" });
         }
@@ -197,7 +197,7 @@ export async function handleGetOrderById(req, res) {
         }
 
         const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        
+
         if (!token) {
             return res.json({ status: "failed", message: "Invalid authentication" });
         }
@@ -231,7 +231,7 @@ export async function handleAcceptOrder(req, res) {
         }
 
         const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        
+
         if (!token) {
             return res.json({ status: "failed", message: "Invalid authentication" });
         }
@@ -267,7 +267,7 @@ export async function handleRejectOrder(req, res) {
         }
 
         const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-        
+
         if (!token) {
             return res.json({ status: "failed", message: "Invalid authentication" });
         }
@@ -279,7 +279,7 @@ export async function handleRejectOrder(req, res) {
         }
 
         const result = await updateOrderStatus(orderId, token.email, 'cancelled');
-        
+
         // You can extend this to save the rejection reason if needed
         return res.json(result);
 

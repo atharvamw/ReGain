@@ -13,10 +13,10 @@ const orderSchema = mongoose.Schema({
         }, { _id: false })
     },
     totalAmount: { type: Number, required: true },
-    status: { 
-        type: String, 
-        enum: ['pending', 'approved', 'shipping', 'delivered', 'cancelled'], 
-        default: 'pending' 
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'shipping', 'delivered', 'cancelled', 'completed'],
+        default: 'pending'
     },
     buyerDetails: {
         firstName: { type: String, required: true },
@@ -50,11 +50,11 @@ export async function createOrder(orderData) {
 // Get pending orders for a seller
 export async function getSellerPendingOrders(sellerEmail) {
     try {
-        const orders = await Order.find({ 
-            sellerEmail, 
-            status: 'pending' 
+        const orders = await Order.find({
+            sellerEmail,
+            status: 'pending'
         }).sort({ createdAt: -1 });
-        
+
         return { status: "success", data: orders };
     } catch (err) {
         return { status: "error", message: "Failed to fetch pending orders: " + err.message };
@@ -84,8 +84,8 @@ export async function getBuyerOrders(buyerEmail) {
 // Update order status (approve, ship, deliver, cancel)
 export async function updateOrderStatus(orderId, sellerEmail, newStatus) {
     try {
-        const validStatuses = ['approved', 'shipping', 'delivered', 'cancelled'];
-        
+        const validStatuses = ['approved', 'shipping', 'delivered', 'cancelled', 'completed'];
+
         if (!validStatuses.includes(newStatus)) {
             return { status: "failed", message: "Invalid status" };
         }

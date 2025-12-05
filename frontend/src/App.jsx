@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import MySites from "./components/MySites";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Search from "./pages/Search";
+import MyOrders from "./pages/MyOrders";
 import "./App.css";
 import "leaflet/dist/leaflet.css";
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/mysites" element={<ProtectedRoute><MySites /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
+        <Route path="/myorders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
       </Routes>
     </>
   );
