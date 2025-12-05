@@ -31,6 +31,7 @@ export default function Navbar() {
         { path: "/graph", label: "Graph Mode" },
         { path: "/search", label: "Search" },
         { path: "/mysites", label: "My Sites" },
+        { path: "/myorders", label: "My Orders" },
         { path: "/dashboard", label: "Dashboard" },
       ]);
     } else {

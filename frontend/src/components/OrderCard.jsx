@@ -97,13 +97,13 @@ export default function OrderCard({ order, activeTab, onUpdateStatus }) {
             )}
             {order.status === "shipping" && (
               <motion.button
-                onClick={() => onUpdateStatus(order._id, 'completed')}
+                onClick={() => onUpdateStatus(order._id, 'delivered')}
                 className="flex-1 p-3 bg-[#2ecc71] text-white border-none rounded-lg text-sm font-bold cursor-pointer flex items-center justify-center gap-1.5 hover:bg-[#27ae60]"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <CheckCircle size={16} />
-                Complete
+                Mark Delivered
               </motion.button>
             )}
           </>
