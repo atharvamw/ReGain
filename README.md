@@ -73,11 +73,11 @@ Simple, transparent, and eco-friendly. 🌱
 | Phase      | Description                                  | Status            |
 |------------|----------------------------------------------|-------------------|
 | 🔹 Phase 1 | Research & Problem Validation                | ✅ Done          |
-| 🔹 Phase 2 | UI Design & Prototyping                      | 🏗️ In Progress   |
-| 🔹 Phase 3 | Map Integration (GIS Layer + Listings)       | 🔜 Coming Soon   |
-| 🔹 Phase 4 | Authentication + Material Upload             | ⏳ Planned       |
-| 🔹 Phase 5 | Buyer–Seller Chat System                     | ⏳ Planned       |
-| 🔹 Phase 6 | Analytics Dashboard & Sustainability Metrics | 🚀 Future Vision |
+| 🔹 Phase 2 | UI Design & Prototyping                      | ✅ Done          |
+| 🔹 Phase 3 | Map Integration (GIS Layer + Listings)       | ✅ Done          |
+| 🔹 Phase 4 | Authentication + Material Upload             | 🏗️ In Progress   |
+| 🔹 Phase 5 | Buyer–Seller Chat System                     | 🔜 Coming Soon   |
+| 🔹 Phase 6 | Analytics Dashboard & Sustainability Metrics | ⏳ Planned       |
 
 ---
 
@@ -93,11 +93,11 @@ By reusing and redistributing leftover materials:
 
 ## 👩‍💻 Team ReGain
 
-|      Name       |           Role           |
-|-----------------|--------------------------|
+|      Name                     |           Role           |
+|-------------------------------|--------------------------|
 | Atharva Wadekar,Arshad Shaikh | Project Lead / Developer |
-|                 | Frontend & GIS           |
-|                 | Backend & Database       |
+| Pallav Ghatval                | Frontend & GIS           |
+| Atharva Wadekar               | Backend & Database       |
 
 ---
 

@@ -216,3 +216,75 @@ export async function handleGetOrderById(req, res) {
         return res.json({ status: "error", message: err.toString() });
     }
 }
+
+// Accept/Approve order (Seller)
+export async function handleAcceptOrder(req, res) {
+    /*
+    JSON Body format:
+    {
+        orderId: "mongoId"
+    }
+    */
+    try {
+        if (!req.cookies?.token) {
+            return res.json({ status: "failed", message: "Please login first" });
+        }
+
+        const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+        
+        if (!token) {
+            return res.json({ status: "failed", message: "Invalid authentication" });
+        }
+
+        const { orderId } = req.body;
+
+        if (!orderId) {
+            return res.json({ status: "failed", message: "Order ID is required" });
+        }
+
+        // Only allow accepting pending orders
+        const result = await updateOrderStatus(orderId, token.email, 'approved');
+        return res.json(result);
+
+    } catch (err) {
+        console.error("Accept Order Error:", err);
+        return res.json({ status: "error", message: err.toString() });
+    }
+}
+
+// Reject order (Seller)
+export async function handleRejectOrder(req, res) {
+    /*
+    JSON Body format:
+    {
+        orderId: "mongoId",
+        reason: "Optional rejection reason"
+    }
+    */
+    try {
+        if (!req.cookies?.token) {
+            return res.json({ status: "failed", message: "Please login first" });
+        }
+
+        const token = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+        
+        if (!token) {
+            return res.json({ status: "failed", message: "Invalid authentication" });
+        }
+
+        const { orderId, reason } = req.body;
+
+        if (!orderId) {
+            return res.json({ status: "failed", message: "Order ID is required" });
+        }
+
+        const result = await updateOrderStatus(orderId, token.email, 'cancelled');
+        
+        // You can extend this to save the rejection reason if needed
+        return res.json(result);
+
+    } catch (err) {
+        console.error("Reject Order Error:", err);
+        return res.json({ status: "error", message: err.toString() });
+    }
+}
