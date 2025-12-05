@@ -70,10 +70,13 @@ export default function Search() {
   const [userLocation, setUserLocation] = useState(null);
   const [radius, setRadius] = useState(10);
   const [selectedSite, setSelectedSite] = useState(null);
+  const [locationAttempted, setLocationAttempted] = useState(false);
 
-  // Automatically get user location on component mount
+  // Automatically get user location on component mount (only once)
   useEffect(() => {
-    getUserLocation();
+    if (!locationAttempted) {
+      getUserLocation(true);
+    }
   }, []);
 
   const handleSearchQueryChange = (e) => {
@@ -130,8 +133,9 @@ export default function Search() {
     }
   };
 
-  const getUserLocation = () => {
+  const getUserLocation = (isAutoAttempt = false) => {
     if (navigator.geolocation) {
+      setLocationAttempted(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation({
@@ -141,10 +145,13 @@ export default function Search() {
         },
         (error) => {
           console.error("Location error:", error);
-          // Only show alert if user actively denies or there's an error
-          // Don't show alert on initial page load
-          if (error.code === error.PERMISSION_DENIED) {
-            console.log("Location permission denied");
+          // Only show alert if user manually clicks the button (not auto-attempt)
+          if (!isAutoAttempt) {
+            if (error.code === error.PERMISSION_DENIED) {
+              alert("Location access denied. Please enable location permissions in your browser settings.");
+            } else {
+              alert("Unable to get your location. Please try again.");
+            }
           }
         }
       );
@@ -159,6 +166,68 @@ export default function Search() {
 
   const handleBuy = (site) => {
     setSelectedSite(site);
+  };
+
+  const closeBuyModal = () => {
+    setSelectedSite(null);
+  };
+
+  const submitOrder = async (quantities) => {
+    if (!selectedSite) return;
+
+    // Filter out materials with 0 quantity
+    const materialsToOrder = {};
+    let totalAmount = 0;
+    let hasItems = false;
+
+    Object.entries(quantities).forEach(([material, qty]) => {
+      if (qty > 0) {
+        const price = typeof selectedSite.materials[material] === 'object' 
+          ? selectedSite.materials[material].price 
+          : 0; // Fallback if price structure is different
+        
+        materialsToOrder[material] = {
+          quantity: parseInt(qty),
+          price: price
+        };
+        totalAmount += price * parseInt(qty);
+        hasItems = true;
+      }
+    });
+
+    if (!hasItems) {
+      alert("Please enter a quantity for at least one material.");
+      return;
+    }
+
+    try {
+      const response = await fetch("https://api.regain.pp.ua/placeOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          siteId: selectedSite._id,
+          siteName: selectedSite.name,
+          sellerEmail: selectedSite.email, // Assuming site object has email
+          materials: materialsToOrder,
+          totalAmount: totalAmount,
+          shippingAddress: {
+            coordinates: [userLocation.lat, userLocation.lng]
+          }
+        }),
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+        alert("Order placed successfully!");
+        setSelectedSite(null);
+      } else {
+        alert("Failed to place order: " + result.message);
+      }
+    } catch (error) {
+      console.error("Order error:", error);
+      alert("An error occurred while placing the order.");
+    }
   };
 
   return (
@@ -436,12 +505,170 @@ export default function Search() {
             </div>
           </motion.div>
         )}
+
+        {/* Buy Modal */}
+        {selectedSite && (
+          <div style={modalOverlayStyle}>
+            <motion.div 
+              style={modalStyle}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+            >
+              <h2 style={modalTitleStyle}>Place Order</h2>
+              <p style={modalSubtitleStyle}>Ordering from {selectedSite.name}</p>
+              
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.target);
+                  const quantities = {};
+                  Object.keys(selectedSite.materials || {}).forEach(material => {
+                    quantities[material] = formData.get(material);
+                  });
+                  submitOrder(quantities);
+                }}
+              >
+                <div style={modalMaterialsListStyle}>
+                  {Object.entries(selectedSite.materials || {}).map(([material, details]) => (
+                    <div key={material} style={modalMaterialRowStyle}>
+                      <div style={modalMaterialInfoStyle}>
+                        <span style={modalMaterialNameStyle}>{material}</span>
+                        <span style={modalPriceStyle}>
+                          ₹{typeof details === 'object' ? details.price : 'N/A'}
+                        </span>
+                      </div>
+                      <input
+                        type="number"
+                        name={material}
+                        min="0"
+                        placeholder="Qty"
+                        style={modalInputStyle}
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                <div style={modalActionsStyle}>
+                  <button type="button" onClick={closeBuyModal} style={modalCancelBtnStyle}>
+                    Cancel
+                  </button>
+                  <button type="submit" style={modalSubmitBtnStyle}>
+                    Place Order
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
       </motion.div>
     </div>
   );
 }
 
 // Styles
+const modalOverlayStyle = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0,0,0,0.7)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 2000,
+};
+
+const modalStyle = {
+  backgroundColor: '#242424',
+  padding: '30px',
+  borderRadius: '16px',
+  width: '90%',
+  maxWidth: '500px',
+  border: '1px solid #3a3a3a',
+  boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+};
+
+const modalTitleStyle = {
+  color: '#f39c12',
+  fontSize: '24px',
+  marginBottom: '8px',
+};
+
+const modalSubtitleStyle = {
+  color: '#aaa',
+  marginBottom: '24px',
+};
+
+const modalMaterialsListStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+  marginBottom: '24px',
+  maxHeight: '300px',
+  overflowY: 'auto',
+};
+
+const modalMaterialRowStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  backgroundColor: '#1a1a1a',
+  padding: '12px',
+  borderRadius: '8px',
+};
+
+const modalMaterialInfoStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+};
+
+const modalMaterialNameStyle = {
+  color: '#fff',
+  fontWeight: '600',
+  textTransform: 'capitalize',
+};
+
+const modalPriceStyle = {
+  color: '#f39c12',
+  fontSize: '12px',
+};
+
+const modalInputStyle = {
+  width: '80px',
+  padding: '8px',
+  borderRadius: '6px',
+  border: '1px solid #3a3a3a',
+  backgroundColor: '#242424',
+  color: '#fff',
+  outline: 'none',
+};
+
+const modalActionsStyle = {
+  display: 'flex',
+  gap: '12px',
+  justifyContent: 'flex-end',
+};
+
+const modalCancelBtnStyle = {
+  padding: '10px 20px',
+  backgroundColor: 'transparent',
+  color: '#aaa',
+  border: '1px solid #3a3a3a',
+  borderRadius: '8px',
+  cursor: 'pointer',
+};
+
+const modalSubmitBtnStyle = {
+  padding: '10px 20px',
+  backgroundColor: '#f39c12',
+  color: '#1a1a1a',
+  border: 'none',
+  borderRadius: '8px',
+  fontWeight: '600',
+  cursor: 'pointer',
+};
+
 const containerStyle = {
   minHeight: "calc(100vh - 80px)",
   backgroundColor: "#1a1a1a",

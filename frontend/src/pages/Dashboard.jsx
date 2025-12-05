@@ -1,5 +1,5 @@
 import { AuthContext } from "../context/Auth";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Package, MessageSquare, User, X, CheckCircle, XCircle, TrendingUp, LogOut } from "lucide-react";
@@ -8,32 +8,78 @@ export default function Dashboard() {
   const Auth = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("orders");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Mock data for orders
-  const mockOrders = [
-    {
-      id: "ORD-001",
-      material: "Cement",
-      quantity: 500,
-      unit: "kg",
-      price: 25,
-      total: 12500,
-      buyer: "Site Alpha",
-      status: "processing",
-      date: "2024-01-15",
-    },
-    {
-      id: "ORD-002",
-      material: "Steel Bars",
-      quantity: 200,
-      unit: "kg",
-      price: 45,
-      total: 9000,
-      buyer: "Site Beta",
-      status: "processing",
-      date: "2024-01-14",
-    },
-  ];
+  useEffect(() => {
+    if (activeTab === "orders") {
+      fetchOrders();
+    }
+  }, [activeTab]);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("https://api.regain.pp.ua/sellerPendingOrders", {
+        method: "GET",
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        setOrders(result.data);
+      } else {
+        console.error("Failed to fetch orders:", result.message);
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRejectOrder = async (orderId) => {
+    if (!confirm("Are you sure you want to reject this order?")) return;
+    
+    try {
+      const response = await fetch("https://api.regain.pp.ua/rejectOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ orderId }),
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        alert("Order rejected successfully");
+        fetchOrders(); // Refresh list
+      } else {
+        alert("Failed to reject order: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error rejecting order:", error);
+      alert("An error occurred");
+    }
+  };
+
+  const handleApproveOrder = async (orderId) => {
+    try {
+      const response = await fetch("https://api.regain.pp.ua/acceptOrder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ orderId }),
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        alert("Order approved successfully");
+        fetchOrders(); // Refresh list
+      } else {
+        alert("Failed to approve order: " + result.message);
+      }
+    } catch (error) {
+      console.error("Error approving order:", error);
+      alert("An error occurred");
+    }
+  };
 
   // Mock data for negotiations
   const mockNegotiations = [
@@ -58,14 +104,6 @@ export default function Dashboard() {
       date: "2024-01-15",
     },
   ];
-
-  const handleCancel = (orderId) => {
-    alert(`Order ${orderId} cancelled and refunded`);
-  };
-
-  const handleShipped = (orderId) => {
-    alert(`Order ${orderId} marked as shipped`);
-  };
 
   const handleReject = (negId) => {
     alert(`Negotiation ${negId} rejected`);
@@ -129,7 +167,7 @@ export default function Dashboard() {
             whileTap={{ scale: 0.98 }}
           >
             <Package size={20} />
-            <span>Orders Placed</span>
+            <span>Orders Requests</span>
           </motion.button>
 
           <motion.button
@@ -168,72 +206,85 @@ export default function Dashboard() {
           >
             <h1 style={pageHeaderStyle}>
               <Package size={32} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "12px" }} />
-              Orders Placed
+              Order Requests
             </h1>
             <p style={pageDescStyle}>
-              Manage your active orders. Cancel or mark as shipped.
+              Manage incoming order requests. Approve or Reject them.
             </p>
 
-            <div style={cardsContainerStyle}>
-              {mockOrders.map((order) => (
-                <motion.div
-                  key={order.id}
-                  style={orderCardStyle}
-                  whileHover={{ y: -5, boxShadow: "0 8px 30px rgba(243, 156, 18, 0.3)" }}
-                >
-                  <div style={cardHeaderStyle}>
-                    <h3 style={orderIdStyle}>{order.id}</h3>
-                    <span style={statusBadgeStyle}>{order.status}</span>
-                  </div>
+            {loading ? (
+              <p style={{color: '#aaa'}}>Loading orders...</p>
+            ) : orders.length === 0 ? (
+              <p style={{color: '#aaa'}}>No pending orders found.</p>
+            ) : (
+              <div style={cardsContainerStyle}>
+                {orders.map((order) => (
+                  <motion.div
+                    key={order._id}
+                    style={orderCardStyle}
+                    whileHover={{ y: -5, boxShadow: "0 8px 30px rgba(243, 156, 18, 0.3)" }}
+                  >
+                    <div style={cardHeaderStyle}>
+                      <h3 style={orderIdStyle}>Order #{order._id.slice(-6)}</h3>
+                      <span style={statusBadgeStyle}>{order.status}</span>
+                    </div>
 
-                  <div style={orderDetailsStyle}>
-                    <div style={detailRowStyle}>
-                      <span style={labelStyle}>Material:</span>
-                      <span style={valueStyle}>{order.material}</span>
-                    </div>
-                    <div style={detailRowStyle}>
-                      <span style={labelStyle}>Quantity:</span>
-                      <span style={valueStyle}>
-                        {order.quantity} {order.unit}
-                      </span>
-                    </div>
-                    <div style={detailRowStyle}>
-                      <span style={labelStyle}>Price:</span>
-                      <span style={valueStyle}>₹{order.price}/{order.unit}</span>
-                    </div>
-                    <div style={detailRowStyle}>
-                      <span style={labelStyle}>Buyer:</span>
-                      <span style={valueStyle}>{order.buyer}</span>
-                    </div>
-                    <div style={{ ...detailRowStyle, ...totalRowStyle }}>
-                      <span style={labelStyle}>Total:</span>
-                      <span style={totalValueStyle}>₹{order.total}</span>
-                    </div>
-                  </div>
+                    <div style={orderDetailsStyle}>
+                      <div style={detailRowStyle}>
+                        <span style={labelStyle}>Buyer:</span>
+                        <span style={valueStyle}>
+                          {order.buyerDetails?.firstName} {order.buyerDetails?.lastName}
+                        </span>
+                      </div>
+                      <div style={detailRowStyle}>
+                        <span style={labelStyle}>Phone:</span>
+                        <span style={valueStyle}>{order.buyerDetails?.phone}</span>
+                      </div>
+                      
+                      <div style={{marginTop: '10px', marginBottom: '5px'}}>
+                        <span style={labelStyle}>Materials:</span>
+                      </div>
+                      {Object.entries(order.materials || {}).map(([material, details]) => (
+                        <div key={material} style={detailRowStyle}>
+                          <span style={{...valueStyle, textTransform: 'capitalize', marginLeft: '10px'}}>
+                            - {material}
+                          </span>
+                          <span style={valueStyle}>
+                            {details.quantity} x ₹{details.price}
+                          </span>
+                        </div>
+                      ))}
 
-                  <div style={actionButtonsStyle}>
-                    <motion.button
-                      onClick={() => handleCancel(order.id)}
-                      style={cancelButtonStyle}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <X size={16} style={{ marginRight: "6px" }} />
-                      Cancel
-                    </motion.button>
-                    <motion.button
-                      onClick={() => handleShipped(order.id)}
-                      style={shippedButtonStyle}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <CheckCircle size={16} style={{ marginRight: "6px" }} />
-                      Ship
-                    </motion.button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                      <div style={{ ...detailRowStyle, ...totalRowStyle }}>
+                        <span style={labelStyle}>Total Amount:</span>
+                        <span style={totalValueStyle}>₹{order.totalAmount}</span>
+                      </div>
+                    </div>
+
+                    <div style={actionButtonsStyle}>
+                      <motion.button
+                        onClick={() => handleRejectOrder(order._id)}
+                        style={cancelButtonStyle}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <X size={16} style={{ marginRight: "6px" }} />
+                        Reject
+                      </motion.button>
+                      <motion.button
+                        onClick={() => handleApproveOrder(order._id)}
+                        style={shippedButtonStyle}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <CheckCircle size={16} style={{ marginRight: "6px" }} />
+                        Approve
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
 
